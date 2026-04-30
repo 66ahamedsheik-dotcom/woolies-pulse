@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PLMS Team Tracker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root { --primary: #1e293b; --accent: #3b82f6; --bg: #f8fafc; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        .hidden { display: none; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #e2e8f0; border-radius: 6px; }
+        .big-btn { width: 100%; padding: 12px; border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer; margin-top: 10px; transition: opacity 0.2s; }
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .admin-section { margin-top: 20px; border-top: 2px solid #f1f5f9; padding-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div id="app" class="card">
+    <h2 id="title">PLMS Support Tracker</h2>
+    
+    <!-- Login Section -->
+    <div id="login-view">
+        <input type="email" id="email" placeholder="Work Email">
+        <input type="password" id="password" placeholder="Password (default: pass)">
+        <button class="big-btn" style="background: var(--accent);" onclick="handleLogin()">Login</button>
+    </div>
+
+    <!-- Attendance Section -->
+    <div id="attendance-view" class="hidden">
+        <p style="font-weight: bold; color: #64748b;">Select Status:</p>
+        <button class="big-btn" style="background: #10b981;" onclick="submitStatus('Present')">Present (Full Day)</button>
+        <div class="status-grid">
+            <button class="big-btn" style="background: #059669; font-size: 11px;" onclick="submitStatus('First Half Only')">1st Half Only</button>
+            <button class="big-btn" style="background: #059669; font-size: 11px;" onclick="submitStatus('Second Half Only')">2nd Half Only</button>
+        </div>
+        <div class="status-grid">
+            <button class="big-btn" style="background: #f59e0b;" onclick="submitStatus('Sick Leave')">Sick Leave</button>
+            <button class="big-btn" style="background: #ef4444;" onclick="submitStatus('Casual Leave')">Casual Leave</button>
+            <button class="big-btn" style="background: #8b5cf6;" onclick="submitStatus('Earned Leave')">Earned Leave</button>
+            <button class="big-btn" style="background: #ec4899;" onclick="submitStatus('Comp Off')">Comp Off</button>
+        </div>
+        <button class="big-btn" style="background: #3b82f6;" onclick="submitStatus('WFH')">Work From Home</button>
+
+        <!-- Admin Only -->
+        <div id="admin-controls" class="admin-section hidden">
+            <p style="color: #ef4444; font-weight: bold;">🛡️ Admin Audit</p>
+            <button class="big-btn" style="background: #1e293b;" onclick="downloadReport()">Download Excel Report</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Your exact Firebase keys
+    const firebaseConfig = {
+        apiKey: "AIzaSyAKV7ShVU8o-FS4G08pziEACeR_YOib51Y",
+        authDomain: "woolies-pulse.firebaseapp.com",
+        projectId: "woolies-pulse",
+        storageBucket: "woolies-pulse.firebasestorage.app",
+        messagingSenderId: "754063512378",
+        appId: "1:754063512378:web:81d15e6a5d9950d6183603"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const ADMINS = ["sheikahamed@woolworths.com.au", "vignesh.saravanan@woolworths.com.au", "lakshmanan@woolworths.com.au"];
+    let currentUser = "";
+
+    window.handleLogin = async () => {
+        const email = document.getElementById('email').value.toLowerCase();
+        const pass = document.getElementById('password').value;
+        if(pass === "pass" || pass.length > 3) {
+            currentUser = email;
+            document.getElementById('login-view').classList.add('hidden');
+            document.getElementById('attendance-view').classList.remove('hidden');
+            if(ADMINS.includes(email)) document.getElementById('admin-controls').classList.remove('hidden');
+            alert("Logged in as " + email);
+        }
+    };
+
+    window.submitStatus = async (status) => {
+        const date = new Date().toLocaleDateString();
+        await setDoc(doc(db, "plms_team", currentUser + "_" + date), {
+            user: currentUser,
+            status: status,
+            timestamp: new Date().toLocaleString(),
+            date: date
+        });
+        alert("Status updated: " + status);
+    };
+
+    window.downloadReport = async () => {
+        const querySnapshot = await getDocs(collection(db, "plms_team"));
+        const data = [];
+        querySnapshot.forEach((doc) => data.push(doc.data()));
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Attendance");
+        XLSX.writeFile(wb, "PLMS_Attendance_Report.xlsx");
+    };
+</script>
+</body>
+</html>
