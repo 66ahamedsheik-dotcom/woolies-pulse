@@ -4,70 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PLMS TeamPulse</title>
-    <!-- React and Tailwind for styling -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect } = React;
 
-        // --- CONFIGURATION ---
+        // --- Firebase Config from your screenshot ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAKV7ShVU8o-FS4G08pzIEACeR_YOib51Y",
+            authDomain: "woolies-pulse.firebaseapp.com",
+            projectId: "woolies-pulse",
+            storageBucket: "woolies-pulse.firebasestorage.app",
+            messagingSenderId: "754063512378",
+            appId: "1:754063512378:web:81d15e6a5d9950d6183603",
+            measurementId: "G-603ST5X49M"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         const ADMIN_EMAILS = ["sheikahamed@woolworths.com", "vigneshsaravanan@woolworths.com", "lakshmanan@woolworths.com"];
-        const DEFAULT_PASS = "pass";
-        const MEMBERS = [
-            "Sheikahamed", "Vignesh Saravanan", "Lakshmanan", "Dineshk", "Barathcmk", 
-            "Bimalm", "Gopinathg", "Harpushapsingh", "Libinshaj", "Lingeswar", 
-            "Nandhinim", "Rengaswamyk", "Ramyas", "Soniyal", "Sarvananr", 
-            "Sridhar", "Senthils", "Shruthiv", "Tamilselvans", "Vanishrig", 
-            "Vigneshjm", "Vasanthl", "Geethapriya", "Gokul", "Arjun Sharma", 
-            "Priya Patel", "Rahul Verma", "Sneha Iyer"
-        ];
+        const MEMBERS = ["Sheikahamed", "Vignesh Saravanan", "Lakshmanan", "Dineshk", "Barathcmk", "Bimalm", "Gopinathg", "Harpushapsingh", "Libinshaj", "Lingeswar", "Nandhinim", "Rengaswamyk", "Ramyas", "Soniyal", "Sarvananr", "Sridhar", "Senthils", "Shruthiv", "Tamilselvans", "Vanishrig", "Vigneshjm", "Vasanthl", "Geethapriya", "Gokul"];
 
-        // --- HELPERS ---
         const TODAY = () => new Date().toISOString().split("T")[0];
 
         function App() {
             const [currentUser, setCurrentUser] = useState(null);
-            const [view, setView] = useState("dashboard"); // Default view
+            const [view, setView] = useState("attendance");
             const [auth, setAuth] = useState({ email: "", pass: "" });
 
-            // Login Logic
             const handleLogin = () => {
-                const email = auth.email.toLowerCase();
-                if (auth.pass === DEFAULT_PASS) {
-                    const user = { email, name: email.split('@')[0], isAdmin: ADMIN_EMAILS.includes(email) };
-                    setCurrentUser(user);
-                } else {
-                    alert("Invalid Password");
-                }
+                if (auth.pass === "pass") {
+                    setCurrentUser({ email: auth.email.toLowerCase(), name: auth.email.split('@')[0], isAdmin: ADMIN_EMAILS.includes(auth.email.toLowerCase()) });
+                } else { alert("Invalid Password"); }
             };
 
-            // Export logic (Direct CSV Download)
-            const handleExport = () => {
-                const rows = [["Name", "Status", "Date"]];
-                // In a real scenario, this pulls from Firebase records
-                const csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
-                const encodedUri = encodeURI(csvContent);
-                const link = document.createElement("a");
-                link.setAttribute("href", encodedUri);
-                link.setAttribute("download", `PLMS_Report_${TODAY()}.csv`);
-                document.body.appendChild(link);
-                link.click();
+            const markStatus = async (status) => {
+                try {
+                    await db.collection("plms_team").doc(currentUser.email).set({
+                        status: status,
+                        date: TODAY(),
+                        userName: currentUser.name,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                    alert("Status captured successfully! You can check the Firebase Data tab now.");
+                } catch (e) {
+                    console.error("Error writing document: ", e);
+                    alert("Error saving status.");
+                }
             };
 
             if (!currentUser) {
                 return (
-                    <div style={S.loader}>
+                    <div style={S.container}>
                         <div style={S.card}>
-                            <h2 style={S.logoTitle}>TeamPulse Login</h2>
+                            <h2 style={{margin:0, color:'#1e293b'}}>TeamPulse Login</h2>
+                            <p style={{fontSize:14, color:'#64748b', marginBottom:20}}>Log in to the PLMS Support Tracker</p>
                             <input style={S.input} placeholder="Email" onChange={e => setAuth({...auth, email: e.target.value})} />
                             <input style={S.input} type="password" placeholder="Password" onChange={e => setAuth({...auth, pass: e.target.value})} />
-                            <button style={S.bigBtn} onClick={handleLogin}>Sign In</button>
+                            <button style={S.button} onClick={handleLogin}>Sign In</button>
                         </div>
                     </div>
                 );
@@ -76,47 +80,33 @@
             return (
                 <div style={S.app}>
                     <header style={S.header}>
-                        <div style={S.headerInner}>
-                            <div style={S.logoTitle}>📋 TeamPulse Dashboard</div>
-                            <button onClick={() => setCurrentUser(null)} style={S.removeBtn}>Logout</button>
-                        </div>
+                        <div style={{fontWeight:800}}>📋 PLMS TeamPulse</div>
                         <nav style={S.nav}>
-                            <button style={view === "dashboard" ? S.navBtnActive : S.navBtn} onClick={() => setView("dashboard")}>📊 Dashboard</button>
-                            <button style={view === "attendance" ? S.navBtnActive : S.navBtn} onClick={() => setView("attendance")}>✅ Mark Today</button>
-                            <button style={view === "calendar" ? S.navBtnActive : S.navBtn} onClick={() => setView("calendar")}>📅 Calendar</button>
-                            {currentUser.isAdmin && (
-                                <button style={view === "export" ? S.navBtnActive : S.navBtn} onClick={handleExport}>📥 Export CSV</button>
-                            )}
+                            <button style={view === "attendance" ? S.activeNav : S.navBtn} onClick={() => setView("attendance")}>Mark Today</button>
+                            {currentUser.isAdmin && <button style={view === "dashboard" ? S.activeNav : S.navBtn} onClick={() => setView("dashboard")}>Dashboard</button>}
+                            <button style={S.logoutBtn} onClick={() => setCurrentUser(null)}>Logout</button>
                         </nav>
                     </header>
-
                     <main style={S.main}>
-                        {view === "dashboard" && (
-                            <div>
-                                <div style={S.statsGrid}>
-                                    <div style={S.statCard}><h3>👥 Total Team</h3><p>{MEMBERS.length}</p></div>
-                                    <div style={S.statCard}><h3>✅ Present Today</h3><p>--</p></div>
-                                </div>
-                                <p style={{textAlign:'center', marginTop:20}}>Welcome, {currentUser.name}! Use the tabs above to manage the team.</p>
-                            </div>
-                        )}
-
                         {view === "attendance" && (
                             <div style={S.card}>
-                                <h3>Select Your Status for {TODAY()}</h3>
-                                <div style={{display:'grid', gap:10, marginTop:15}}>
-                                    <button style={{...S.bigBtn, background:'#10b981'}}>Present (Full Day)</button>
-                                    <button style={{...S.bigBtn, background:'#f59e0b'}}>Sick Leave</button>
-                                    <button style={{...S.bigBtn, background:'#ef4444'}}>Casual Leave</button>
-                                    <button style={{...S.bigBtn, background:'#6366f1'}}>Work From Home</button>
+                                <h3 style={{marginTop:0}}>Select Status for {TODAY()}</h3>
+                                <div style={{display:'grid', gap:10}}>
+                                    <button style={{...S.button, background: '#10b981'}} onClick={() => markStatus("Present")}>Present (Full Day)</button>
+                                    <button style={{...S.button, background: '#f59e0b'}} onClick={() => markStatus("Sick Leave")}>Sick Leave</button>
+                                    <button style={{...S.button, background: '#ef4444'}} onClick={() => markStatus("Casual Leave")}>Casual Leave</button>
+                                    <button style={{...S.button, background: '#6366f1'}} onClick={() => markStatus("Work From Home")}>Work From Home</button>
                                 </div>
                             </div>
                         )}
-
-                        {view === "calendar" && (
+                        {view === "dashboard" && (
                             <div style={S.card}>
-                                <h3>Team Attendance Calendar</h3>
-                                <p style={{fontSize:12, color:'#64748b'}}>Coming Soon: Visual heat-map of team leave.</p>
+                                <h3>Team Dashboard</h3>
+                                <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:15}}>
+                                    <div style={S.stat}><h4>Total Team</h4><p>{MEMBERS.length}</p></div>
+                                    <div style={S.stat}><h4>Present Today</h4><p>Live in Firestore</p></div>
+                                </div>
+                                <p style={{fontSize:12, marginTop:20, color:'#64748b'}}>Download CSV feature is ready to be added here next.</p>
                             </div>
                         )}
                     </main>
@@ -125,25 +115,21 @@
         }
 
         const S = {
-            app: { minHeight: "100vh", background: "#f0f4ff", fontFamily: "'DM Sans', sans-serif" },
-            loader: { display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" },
-            card: { background: "#fff", borderRadius: 20, padding: 30, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", textAlign: 'center' },
-            logoTitle: { fontWeight: 800, fontSize: 20, color: "#1e293b" },
-            input: { width: "100%", padding: "12px", borderRadius: 10, border: "1px solid #e2e8f0", marginTop: 10, boxSizing:'border-box' },
-            bigBtn: { width: "100%", padding: "12px", borderRadius: 10, background: "#6366f1", color: "#fff", border: "none", fontWeight: 700, cursor: "pointer", marginTop: 10 },
-            header: { background: "#fff", borderBottom: "1px solid #e2e8f0" },
-            headerInner: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "15px 20px" },
-            nav: { display: "flex", gap: 10, padding: "0 20px 10px 20px", overflowX: "auto" },
-            navBtn: { background: "none", border: "none", padding: "10px", color: "#94a3b8", cursor: "pointer", whiteSpace: "nowrap" },
-            navBtnActive: { color: "#6366f1", fontWeight: 700, borderBottom: "2px solid #6366f1" },
-            removeBtn: { background: "#fee2e2", color: "#ef4444", border: "none", padding: "5px 10px", borderRadius: 8 },
-            main: { padding: 20, maxWidth: 600, margin: "0 auto" },
-            statsGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 15 },
-            statCard: { background: "#fff", padding: 20, borderRadius: 15, textAlign: 'center', border: '1px solid #f1f5f9' }
+            container: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f0f4ff' },
+            card: { background: '#fff', padding: '30px', borderRadius: '15px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', width:'100%', maxWidth:'400px', boxSizing:'border-box' },
+            input: { width: '100%', padding: '12px', margin: '8px 0', borderRadius: '8px', border: '1px solid #e2e8f0', boxSizing:'border-box' },
+            button: { width: '100%', padding: '12px', marginTop: '10px', border: 'none', borderRadius: '8px', color: '#fff', fontWeight: 'bold', cursor: 'pointer', background: '#6366f1' },
+            app: { fontFamily: 'DM Sans, sans-serif', background:'#f8fafc', minHeight:'100vh' },
+            header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 20px', background: '#fff', borderBottom: '1px solid #e2e8f0' },
+            nav: { display: 'flex', gap: '15px', alignItems:'center' },
+            navBtn: { background:'none', border:'none', cursor:'pointer', color:'#64748b', fontWeight:500 },
+            activeNav: { background:'none', border:'none', cursor:'pointer', color:'#6366f1', fontWeight:700 },
+            logoutBtn: { background:'#fee2e2', border:'none', color:'#ef4444', padding:'5px 10px', borderRadius: '5px', cursor:'pointer' },
+            main: { padding: '30px 20px', maxWidth: '600px', margin: '0 auto' },
+            stat: { border:'1px solid #f1f5f9', padding:'15px', borderRadius:'10px', textAlign:'center' }
         };
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
 </html>
