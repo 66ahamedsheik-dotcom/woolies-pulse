@@ -3,13 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PLMS TeamPulse</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <title>PLMS TeamPulse | Admin Dashboard</title>
+    <!-- React & Firebase Scripts -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #4f46e5; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --sub: #64748b; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .card { background: var(--card); border-radius: 16px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        .btn { padding: 12px 20px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-outline { background: white; border: 1px solid #e2e8f0; color: var(--sub); }
+        .btn-active { background: var(--primary); color: white; border-color: var(--primary); }
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+        th { text-align: left; padding: 12px; background: #f1f5f9; color: var(--sub); border-radius: 4px; }
+        td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+        .badge-present { background: #dcfce7; color: #166534; }
+        .badge-leave { background: #fee2e2; color: #991b1b; }
+    </style>
 </head>
 <body>
     <div id="root"></div>
@@ -17,117 +35,138 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // --- Firebase Config from your screenshot ---
+        // Your exact Firebase Config from image_e1947b.png
         const firebaseConfig = {
             apiKey: "AIzaSyAKV7ShVU8o-FS4G08pzIEACeR_YOib51Y",
             authDomain: "woolies-pulse.firebaseapp.com",
             projectId: "woolies-pulse",
             storageBucket: "woolies-pulse.firebasestorage.app",
             messagingSenderId: "754063512378",
-            appId: "1:754063512378:web:81d15e6a5d9950d6183603",
-            measurementId: "G-603ST5X49M"
+            appId: "1:754063512378:web:81d15e6a5d9950d6183603"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        const ADMIN_EMAILS = ["sheikahamed@woolworths.com", "vigneshsaravanan@woolworths.com", "lakshmanan@woolworths.com"];
-        const MEMBERS = ["Sheikahamed", "Vignesh Saravanan", "Lakshmanan", "Dineshk", "Barathcmk", "Bimalm", "Gopinathg", "Harpushapsingh", "Libinshaj", "Lingeswar", "Nandhinim", "Rengaswamyk", "Ramyas", "Soniyal", "Sarvananr", "Sridhar", "Senthils", "Shruthiv", "Tamilselvans", "Vanishrig", "Vigneshjm", "Vasanthl", "Geethapriya", "Gokul"];
-
-        const TODAY = () => new Date().toISOString().split("T")[0];
-
         function App() {
-            const [currentUser, setCurrentUser] = useState(null);
-            const [view, setView] = useState("attendance");
-            const [auth, setAuth] = useState({ email: "", pass: "" });
+            const [user, setUser] = useState(null);
+            const [view, setView] = useState("mark"); // mark, logs
+            const [logs, setLogs] = useState([]);
+            const [loginForm, setLoginForm] = useState({ email: "", pass: "" });
+
+            const admins = ["sheikahamed@woolworths.com", "vigneshsaravanan@woolworths.com"];
+
+            useEffect(() => {
+                if (user?.isAdmin) {
+                    const unsubscribe = db.collection("audit_logs")
+                        .orderBy("timestamp", "desc")
+                        .limit(100)
+                        .onSnapshot(snap => {
+                            setLogs(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+                        });
+                    return () => unsubscribe();
+                }
+            }, [user]);
 
             const handleLogin = () => {
-                if (auth.pass === "pass") {
-                    setCurrentUser({ email: auth.email.toLowerCase(), name: auth.email.split('@')[0], isAdmin: ADMIN_EMAILS.includes(auth.email.toLowerCase()) });
-                } else { alert("Invalid Password"); }
-            };
-
-            const markStatus = async (status) => {
-                try {
-                    await db.collection("plms_team").doc(currentUser.email).set({
-                        status: status,
-                        date: TODAY(),
-                        userName: currentUser.name,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    }, { merge: true });
-                    alert("Status captured successfully! You can check the Firebase Data tab now.");
-                } catch (e) {
-                    console.error("Error writing document: ", e);
-                    alert("Error saving status.");
+                const email = loginForm.email.toLowerCase().trim();
+                if (loginForm.pass === "pass") {
+                    setUser({ email, isAdmin: admins.includes(email) });
+                } else {
+                    alert("Incorrect password. Use 'pass'");
                 }
             };
 
-            if (!currentUser) {
+            const submitStatus = async (status) => {
+                const now = new Date();
+                const entry = {
+                    email: user.email,
+                    status: status,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    formattedDate: now.toLocaleDateString(),
+                    formattedTime: now.toLocaleTimeString()
+                };
+                try {
+                    await db.collection("audit_logs").add(entry);
+                    alert("Status marked successfully!");
+                } catch (e) { alert("Error saving data"); }
+            };
+
+            const exportCSV = () => {
+                let csv = "User,Status,Date,Time\n";
+                logs.forEach(l => csv += `${l.email},${l.status},${l.formattedDate},${l.formattedTime}\n`);
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Attendance_Report_${new Date().toLocaleDateString()}.csv`;
+                a.click();
+            };
+
+            if (!user) {
                 return (
-                    <div style={S.container}>
-                        <div style={S.card}>
-                            <h2 style={{margin:0, color:'#1e293b'}}>TeamPulse Login</h2>
-                            <p style={{fontSize:14, color:'#64748b', marginBottom:20}}>Log in to the PLMS Support Tracker</p>
-                            <input style={S.input} placeholder="Email" onChange={e => setAuth({...auth, email: e.target.value})} />
-                            <input style={S.input} type="password" placeholder="Password" onChange={e => setAuth({...auth, pass: e.target.value})} />
-                            <button style={S.button} onClick={handleLogin}>Sign In</button>
+                    <div style={{display:'flex', justifyContent:'center', alignItems:'center', height:'100vh'}}>
+                        <div className="card" style={{width:'340px', textAlign:'center'}}>
+                            <h2 style={{margin:'0 0 10px'}}>PLMS Tracker</h2>
+                            <p style={{color:'var(--sub)', fontSize:'14px', marginBottom:'24px'}}>Log in with your @woolworths.com ID</p>
+                            <input className="btn btn-outline" style={{width:'100%', marginBottom:'10px', boxSizing:'border-box'}} placeholder="Email ID" onChange={e => setLoginForm({...loginForm, email: e.target.value})} />
+                            <input className="btn btn-outline" type="password" style={{width:'100%', marginBottom:'20px', boxSizing:'border-box'}} placeholder="Password" onChange={e => setLoginForm({...loginForm, pass: e.target.value})} />
+                            <button className="btn btn-primary" style={{width:'100%'}} onClick={handleLogin}>Login</button>
                         </div>
                     </div>
                 );
             }
 
             return (
-                <div style={S.app}>
-                    <header style={S.header}>
-                        <div style={{fontWeight:800}}>📋 PLMS TeamPulse</div>
-                        <nav style={S.nav}>
-                            <button style={view === "attendance" ? S.activeNav : S.navBtn} onClick={() => setView("attendance")}>Mark Today</button>
-                            {currentUser.isAdmin && <button style={view === "dashboard" ? S.activeNav : S.navBtn} onClick={() => setView("dashboard")}>Dashboard</button>}
-                            <button style={S.logoutBtn} onClick={() => setCurrentUser(null)}>Logout</button>
-                        </nav>
-                    </header>
-                    <main style={S.main}>
-                        {view === "attendance" && (
-                            <div style={S.card}>
-                                <h3 style={{marginTop:0}}>Select Status for {TODAY()}</h3>
-                                <div style={{display:'grid', gap:10}}>
-                                    <button style={{...S.button, background: '#10b981'}} onClick={() => markStatus("Present")}>Present (Full Day)</button>
-                                    <button style={{...S.button, background: '#f59e0b'}} onClick={() => markStatus("Sick Leave")}>Sick Leave</button>
-                                    <button style={{...S.button, background: '#ef4444'}} onClick={() => markStatus("Casual Leave")}>Casual Leave</button>
-                                    <button style={{...S.button, background: '#6366f1'}} onClick={() => markStatus("Work From Home")}>Work From Home</button>
-                                </div>
+                <div className="container">
+                    <div style={{display:'flex', justifyContent:'space-between', alignItems:'baseline', marginBottom:'20px'}}>
+                        <h1 style={{fontSize:'22px'}}>Welcome, {user.email.split('@')[0]}</h1>
+                        <button onClick={() => setUser(null)} style={{background:'none', border:'none', color:'red', cursor:'pointer'}}>Logout</button>
+                    </div>
+
+                    <div style={{display:'flex', gap:'10px', marginBottom:'20px'}}>
+                        <button className={`btn ${view==='mark' ? 'btn-active':'btn-outline'}`} onClick={() => setView("mark")}>Mark Attendance</button>
+                        {user.isAdmin && <button className={`btn ${view==='logs' ? 'btn-active':'btn-outline'}`} onClick={() => setView("logs")}>Admin Dashboard</button>}
+                    </div>
+
+                    {view === "mark" ? (
+                        <div className="card">
+                            <h3 style={{marginTop:0}}>Update Your Status</h3>
+                            <div className="status-grid">
+                                <button className="btn" style={{background:'#ecfdf5', color:'#065f46', border:'1px solid #a7f3d0'}} onClick={() => submitStatus("Present")}>✅ I'm Present</button>
+                                <button className="btn" style={{background:'#eff6ff', color:'#1e40af', border:'1px solid #bfdbfe'}} onClick={() => submitStatus("WFH")}>🏠 WFH</button>
+                                <button className="btn" style={{background:'#fef2f2', color:'#991b1b', border:'1px solid #fecaca'}} onClick={() => submitStatus("Sick Leave")}>🤒 Sick Leave</button>
+                                <button className="btn" style={{background:'#fff7ed', color:'#9a3412', border:'1px solid #fed7aa'}} onClick={() => submitStatus("Casual Leave")}>🌴 Casual Leave</button>
                             </div>
-                        )}
-                        {view === "dashboard" && (
-                            <div style={S.card}>
-                                <h3>Team Dashboard</h3>
-                                <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:15}}>
-                                    <div style={S.stat}><h4>Total Team</h4><p>{MEMBERS.length}</p></div>
-                                    <div style={S.stat}><h4>Present Today</h4><p>Live in Firestore</p></div>
-                                </div>
-                                <p style={{fontSize:12, marginTop:20, color:'#64748b'}}>Download CSV feature is ready to be added here next.</p>
+                        </div>
+                    ) : (
+                        <div className="card">
+                            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                                <h3 style={{margin:0}}>Team Audit Logs</h3>
+                                <button className="btn btn-primary" style={{fontSize:'12px'}} onClick={exportCSV}>Download CSV</button>
                             </div>
-                        )}
-                    </main>
+                            <div style={{overflowX:'auto'}}>
+                                <table>
+                                    <thead>
+                                        <tr><th>Email</th><th>Status</th><th>Date</th><th>Time</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        {logs.map(log => (
+                                            <tr key={log.id}>
+                                                <td>{log.email}</td>
+                                                <td><span className={`badge ${log.status==='Present'?'badge-present':'badge-leave'}`}>{log.status}</span></td>
+                                                <td>{log.formattedDate}</td>
+                                                <td>{log.formattedTime}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         }
-
-        const S = {
-            container: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f0f4ff' },
-            card: { background: '#fff', padding: '30px', borderRadius: '15px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', width:'100%', maxWidth:'400px', boxSizing:'border-box' },
-            input: { width: '100%', padding: '12px', margin: '8px 0', borderRadius: '8px', border: '1px solid #e2e8f0', boxSizing:'border-box' },
-            button: { width: '100%', padding: '12px', marginTop: '10px', border: 'none', borderRadius: '8px', color: '#fff', fontWeight: 'bold', cursor: 'pointer', background: '#6366f1' },
-            app: { fontFamily: 'DM Sans, sans-serif', background:'#f8fafc', minHeight:'100vh' },
-            header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 20px', background: '#fff', borderBottom: '1px solid #e2e8f0' },
-            nav: { display: 'flex', gap: '15px', alignItems:'center' },
-            navBtn: { background:'none', border:'none', cursor:'pointer', color:'#64748b', fontWeight:500 },
-            activeNav: { background:'none', border:'none', cursor:'pointer', color:'#6366f1', fontWeight:700 },
-            logoutBtn: { background:'#fee2e2', border:'none', color:'#ef4444', padding:'5px 10px', borderRadius: '5px', cursor:'pointer' },
-            main: { padding: '30px 20px', maxWidth: '600px', margin: '0 auto' },
-            stat: { border:'1px solid #f1f5f9', padding:'15px', borderRadius:'10px', textAlign:'center' }
-        };
 
         ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
