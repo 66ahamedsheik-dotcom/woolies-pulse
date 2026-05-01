@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PLMS | Enterprise TeamPulse</title>
+    <title>SST Windows | Pulse Dashboard</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -11,34 +11,24 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --brand: #6366f1; --brand-dark: #4f46e5; --bg: #f8fafc; --surface: #ffffff; --text: #1e293b; --text-light: #64748b; --success: #22c55e; --danger: #ef4444; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; line-height: 1.5; }
-        .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(0,0,0,0.05); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+        :root { --brand: #4f46e5; --bg: #f8fafc; --surface: #ffffff; --text: #1e293b; --text-light: #64748b; --success: #22c55e; --danger: #ef4444; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
+        .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(0,0,0,0.05); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
         .app-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         .nav-rail { display: flex; gap: 8px; margin-bottom: 24px; overflow-x: auto; padding-bottom: 8px; }
         .nav-link { padding: 10px 18px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.3s; color: var(--text-light); border: 1px solid transparent; white-space: nowrap; }
-        .nav-link:hover { background: #f1f5f9; color: var(--text); }
-        .nav-link.active { background: var(--brand); color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
-        .card { background: var(--surface); border-radius: 20px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.02), 0 10px 20px -5px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; margin-bottom: 24px; }
-        .stat-card { text-align: center; padding: 20px; border-radius: 16px; background: #fff; border: 1px solid #f1f5f9; }
-        .stat-val { font-size: 32px; font-weight: 800; color: var(--brand); display: block; }
-        .stat-label { font-size: 12px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
-        .input-group { margin-bottom: 16px; }
-        .input-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-light); margin-bottom: 6px; text-transform: uppercase; }
-        .form-control { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid #e2e8f0; font-family: inherit; font-size: 14px; box-sizing: border-box; outline: none; transition: 0.2s; }
-        .form-control:focus { border-color: var(--brand); ring: 2px rgba(99, 102, 241, 0.1); }
-        .btn { padding: 12px 24px; border-radius: 12px; font-weight: 700; border: none; cursor: pointer; transition: 0.2s; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .nav-link.active { background: var(--brand); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+        .card { background: var(--surface); border-radius: 20px; padding: 24px; box-shadow: 0 10px 20px -5px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; margin-bottom: 24px; }
+        .btn { padding: 12px 24px; border-radius: 12px; font-weight: 700; border: none; cursor: pointer; transition: 0.2s; font-size: 14px; display: flex; align-items: center; justify-content: center; width: 100%; }
         .btn-primary { background: var(--brand); color: white; }
-        .btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); }
+        .btn-primary:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
         .btn-ghost { background: #f1f5f9; color: var(--text); }
-        table { width: 100%; border-collapse: separate; border-spacing: 0; }
-        th { text-align: left; padding: 16px; font-size: 12px; font-weight: 700; color: var(--text-light); border-bottom: 2px solid #f1f5f9; text-transform: uppercase; }
-        td { padding: 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-        .badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-        .badge-success { background: #dcfce7; color: #166534; }
-        .badge-warning { background: #fef9c3; color: #854d0e; }
-        .badge-error { background: #fee2e2; color: #991b1b; }
-        @media (max-width: 768px) { .stat-grid { grid-template-columns: 1fr 1fr; } }
+        .btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }
+        .leave-box { background: #fef2f2; border: 1px solid #fee2e2; border-radius: 16px; padding: 20px; margin-top: 15px; animation: slideDown 0.3s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .form-control { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; margin-top: 8px; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; }
+        td, th { padding: 16px; text-align: left; border-bottom: 1px solid #f1f5f9; }
     </style>
 </head>
 <body>
@@ -64,87 +54,54 @@
             const [view, setView] = useState("Dashboard");
             const [team, setTeam] = useState([]);
             const [logs, setLogs] = useState([]);
-            const [isFirstLogin, setIsFirstLogin] = useState(false);
-
-            const admins = ["sheikahamed@woolworths.com", "vigneshsaravanan@woolworths.com"];
+            const [showLeaveOptions, setShowLeaveOptions] = useState(false);
+            const [alreadyMarked, setAlreadyMarked] = useState(false);
 
             useEffect(() => {
                 const unsubT = db.collection("team").onSnapshot(s => setTeam(s.docs.map(d => ({id:d.id, ...d.data()}))));
-                const unsubL = db.collection("attendance").orderBy("timestamp", "desc").limit(100)
-                    .onSnapshot(s => setLogs(s.docs.map(d => ({id:d.id, ...d.data()}))));
+                const unsubL = db.collection("attendance").orderBy("timestamp", "desc").onSnapshot(s => {
+                    const data = s.docs.map(d => ({id:d.id, ...d.data()}));
+                    setLogs(data);
+                    if(user) {
+                        const marked = data.some(l => l.email === user.email && l.date === new Date().toLocaleDateString());
+                        setAlreadyMarked(marked);
+                    }
+                });
                 return () => { unsubT(); unsubL(); };
-            }, []);
+            }, [user]);
 
             const login = async (e) => {
                 e.preventDefault();
                 const email = e.target.email.value.toLowerCase().trim();
                 const pass = e.target.pass.value;
                 const snap = await db.collection("team_users").doc(email).get();
-                
-                if(!snap.exists && pass === "pass") {
-                    setUser({ email });
-                    setIsFirstLogin(true);
-                } else if(snap.exists && snap.data().password === pass) {
-                    setUser({ email, isAdmin: admins.includes(email) });
-                } else {
-                    alert("Invalid Credentials");
-                }
+                if(snap.exists && snap.data().password === pass) {
+                    setUser({ email, isAdmin: ["sheikahamed@woolworths.com", "vigneshsaravanan@woolworths.com"].includes(email) });
+                } else { alert("Wrong Password"); }
             };
 
-            const resetUserPassword = async (email) => {
-                const newPass = prompt(`Enter new password for ${email}:`);
-                if(newPass) {
-                    await db.collection("team_users").doc(email).set({ password: newPass }, { merge: true });
-                    alert("Password reset successful!");
-                }
-            };
-
-            const markAttendance = async (status, leaveId = "") => {
-                const now = new Date();
+            const markStatus = async (status, leaveId = "") => {
+                if(alreadyMarked) return;
                 await db.collection("attendance").add({
                     email: user.email,
                     status,
                     leaveId,
-                    date: now.toLocaleDateString(),
-                    time: now.toLocaleTimeString(),
+                    date: new Date().toLocaleDateString(),
+                    time: new Date().toLocaleTimeString(),
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                alert("Status synchronized successfully.");
+                alert(`Status updated to ${status}`);
+                setShowLeaveOptions(false);
             };
 
             if (!user) return (
-                <div style={{display:'flex', height:'100vh', alignItems:'center', justifyContent:'center', padding:'20px'}}>
-                    <div className="card" style={{width:'100%', maxWidth:'400px', textAlign:'center'}}>
-                        <h1 style={{fontSize:'24px', fontWeight:800, color: 'var(--brand)', marginBottom:'8px'}}>PLMS Pulse</h1>
-                        <p style={{color:'var(--text-light)', marginBottom:'32px'}}>Enterprise Support Dashboard</p>
+                <div style={{display:'flex', height:'100vh', alignItems:'center', justifyContent:'center'}}>
+                    <div className="card" style={{width:'350px', textAlign:'center'}}>
+                        <h2 style={{color:'var(--brand)'}}>SST Windows Pulse</h2>
                         <form onSubmit={login}>
-                            <div className="input-group" style={{textAlign:'left'}}>
-                                <label>Corporate Email</label>
-                                <input name="email" className="form-control" placeholder="name@woolworths.com" required />
-                            </div>
-                            <div className="input-group" style={{textAlign:'left'}}>
-                                <label>Secure Password</label>
-                                <input name="pass" type="password" className="form-control" placeholder="••••••••" required />
-                            </div>
-                            <button className="btn btn-primary" style={{width:'100%'}}>Sign In</button>
-                        </form>
-                    </div>
-                </div>
-            );
-
-            if (isFirstLogin) return (
-                <div style={{display:'flex', height:'100vh', alignItems:'center', justifyContent:'center', padding:'20px'}}>
-                    <div className="card" style={{width:'100%', maxWidth:'400px'}}>
-                        <h2 style={{marginTop:0}}>Security Setup</h2>
-                        <p style={{color:'var(--text-light)', fontSize:'14px'}}>Welcome to the team. Please define your permanent password.</p>
-                        <form onSubmit={async (e) => {
-                            e.preventDefault();
-                            await db.collection("team_users").doc(user.email).set({ password: e.target.newPass.value });
-                            setIsFirstLogin(false);
-                            setUser({...user, isAdmin: admins.includes(user.email)});
-                        }}>
-                            <input name="newPass" type="password" className="form-control" placeholder="New Password" required style={{marginBottom:'16px'}} />
-                            <button className="btn btn-primary" style={{width:'100%'}}>Secure Account</button>
+                            <input name="email" className="form-control" placeholder="Email" required />
+                            <input name="pass" type="password" className="form-control" placeholder="Password" required style={{margin:'15px 0'}} />
+                            <button className="btn btn-primary">Sign In</button>
                         </form>
                     </div>
                 </div>
@@ -153,157 +110,95 @@
             return (
                 <div>
                     <header className="glass-header">
-                        <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
-                            <div style={{width:'32px', height:'32px', background: 'var(--brand)', borderRadius:'8px'}}></div>
-                            <span style={{fontWeight:800, fontSize:'18px'}}>PLMS <span style={{color: 'var(--brand)'}}>PULSE</span></span>
-                        </div>
-                        <div style={{display:'flex', alignItems:'center', gap:'16px'}}>
-                            <div style={{textAlign:'right', display:'none', display:'md-block'}}>
-                                <div style={{fontSize:'12px', fontWeight:700}}>{user.email.split('@')[0]}</div>
-                                <div style={{fontSize:'10px', color:'var(--text-light)'}}>{user.isAdmin ? 'Administrator' : 'Team Member'}</div>
-                            </div>
-                            <button onClick={()=>setUser(null)} className="btn btn-ghost" style={{padding:'8px 12px', fontSize:'12px'}}>Logout</button>
-                        </div>
+                        <span style={{fontWeight:800, fontSize:'18px'}}>SST WINDOWS <span style={{color:'var(--brand)'}}>PULSE</span></span>
+                        <button onClick={()=>setUser(null)} className="btn-ghost" style={{padding:'8px 12px', borderRadius:'8px', border:'none', cursor:'pointer'}}>Logout</button>
                     </header>
 
                     <div className="app-container">
                         <nav className="nav-rail">
-                            {["Dashboard", "Mark Today", "Calendar", "Audit Log", "Export", "Manage Team"].map(tab => (
-                                (!user.isAdmin && (tab === "Export" || tab === "Manage Team")) ? null :
+                            {["Dashboard", "Mark Today", "Calendar", "Audit Log", "Manage Team"].map(tab => (
+                                (tab === "Manage Team" && !user.isAdmin) ? null :
                                 <div key={tab} className={`nav-link ${view === tab ? 'active' : ''}`} onClick={()=>setView(tab)}>{tab}</div>
                             ))}
                         </nav>
 
+                        {view === "Mark Today" && (
+                            <div className="card" style={{maxWidth:'500px', margin:'0 auto'}}>
+                                <h3>Attendance Gateway</h3>
+                                <p style={{color:'var(--text-light)', fontSize:'14px'}}>
+                                    {alreadyMarked ? "✅ You have already submitted your status for today." : "Select your operational status for today."}
+                                </p>
+                                
+                                <div style={{display:'grid', gap:'12px', marginTop:'20px'}}>
+                                    <button className="btn btn-primary" disabled={alreadyMarked} onClick={()=>markStatus("Full Day Operational")}>Full Day Operational</button>
+                                    <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px'}}>
+                                        <button className="btn btn-ghost" disabled={alreadyMarked} onClick={()=>markStatus("First Half")}>First Half</button>
+                                        <button className="btn btn-ghost" disabled={alreadyMarked} onClick={()=>markStatus("Second Half")}>Second Half</button>
+                                    </div>
+                                    
+                                    <button className="btn" style={{background:'#fee2e2', color:'#b91c1c'}} disabled={alreadyMarked} onClick={()=>setShowLeaveOptions(!showLeaveOptions)}>
+                                        {showLeaveOptions ? "Close Leave Panel" : "Mark Leave"}
+                                    </button>
+
+                                    {showLeaveOptions && (
+                                        <div className="leave-box">
+                                            <label style={{fontSize:'12px', fontWeight:700}}>LEAVE CATEGORY</label>
+                                            <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px', marginTop:'8px'}}>
+                                                {["Sick Leave", "Casual Leave", "Earned Leave", "Comp Off"].map(type => (
+                                                    <button key={type} className="btn-ghost" style={{padding:'8px', borderRadius:'8px', fontSize:'12px', border:'1px solid #fecaca'}} 
+                                                            onClick={()=>markStatus(type, document.getElementById('leaveIdInput').value)}>
+                                                        {type}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            <div style={{marginTop:'15px'}}>
+                                                <label style={{fontSize:'12px', fontWeight:700}}>LEAVE ID (OPTIONAL)</label>
+                                                <input id="leaveIdInput" className="form-control" placeholder="E.g. LR-5542" />
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
                         {view === "Dashboard" && (
                             <div>
-                                <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))', gap:'20px', marginBottom:'30px'}}>
-                                    <div className="stat-card"><span className="stat-val">{team.length}</span><span className="stat-label">Headcount</span></div>
-                                    <div className="stat-card"><span className="stat-val" style={{color: 'var(--success)'}}>{logs.filter(l => l.date === new Date().toLocaleDateString() && l.status === 'Present').length}</span><span className="stat-label">Active Now</span></div>
-                                    <div className="stat-card"><span className="stat-val" style={{color: 'var(--danger)'}}>{logs.filter(l => l.date === new Date().toLocaleDateString() && l.status.includes('Leave')).length}</span><span className="stat-label">Away</span></div>
-                                </div>
-                                <div className="card" style={{padding:0}}>
-                                    <div style={{padding:'20px', borderBottom:'1px solid #f1f5f9'}}>
-                                        <h3 style={{margin:0}}>Real-time Team Status</h3>
-                                    </div>
-                                    <div style={{overflowX:'auto'}}>
-                                        <table>
-                                            <thead><tr><th>Name</th><th>Email</th><th>Status</th></tr></thead>
-                                            <tbody>
-                                                {team.map(m => {
-                                                    const s = logs.find(l => l.email === m.email && l.date === new Date().toLocaleDateString());
-                                                    return (
-                                                        <tr key={m.id}>
-                                                            <td style={{fontWeight:600}}>{m.name}</td>
-                                                            <td style={{color:'var(--text-light)'}}>{m.email}</td>
-                                                            <td><span className={`badge ${s?.status === 'Present' ? 'badge-success' : 'badge-error'}`}>{s ? s.status : 'Idle'}</span></td>
-                                                        </tr>
-                                                    )
-                                                })}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {view === "Mark Today" && (
-                            <div className="card" style={{maxWidth:'600px', margin:'0 auto'}}>
-                                <h2 style={{marginTop:0}}>Attendance Gateway</h2>
-                                <p style={{color:'var(--text-light)', marginBottom:'24px'}}>Select your operational status for {new Date().toDateString()}</p>
-                                <div style={{display:'grid', gap:'12px'}}>
-                                    <button className="btn btn-primary" onClick={()=>markAttendance("Present")}>Full Day Operational</button>
-                                    <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px'}}>
-                                        <button className="btn btn-ghost" onClick={()=>markAttendance("First Half Only")}>First Half</button>
-                                        <button className="btn btn-ghost" onClick={()=>markAttendance("Second Half Only")}>Second Half</button>
-                                    </div>
-                                    <hr style={{margin:'20px 0', border:'none', borderTop:'1px solid #e2e8f0'}} />
-                                    <div className="input-group">
-                                        <label>Leave Reference (Leave ID)</label>
-                                        <input id="lid" className="form-control" placeholder="E.g. L-99203" />
-                                    </div>
-                                    <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px'}}>
-                                        {["Sick Leave", "Casual Leave", "Earned Leave", "Comp Off"].map(type => (
-                                            <button key={type} className="btn" style={{background:'#fff1f2', color:'#be123c'}} onClick={()=>markAttendance(type, document.getElementById('lid').value)}>{type}</button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {view === "Manage Team" && (
-                            <div>
-                                <div className="card">
-                                    <h3>Directory Management</h3>
-                                    <form onSubmit={async (e)=>{
-                                        e.preventDefault();
-                                        await db.collection("team").add({ name: e.target.n.value, email: e.target.e.value.toLowerCase() });
-                                        e.target.reset();
-                                    }} style={{display:'flex', gap:'12px'}}>
-                                        <input name="n" className="form-control" placeholder="Full Name" required />
-                                        <input name="e" className="form-control" placeholder="Email" required />
-                                        <button className="btn btn-primary">Add Member</button>
-                                    </form>
+                                <div style={{display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:'20px', marginBottom:'24px'}}>
+                                    <div className="card" style={{textAlign:'center'}}><span style={{fontSize:'24px', fontWeight:800}}>{team.length}</span><br/><small>TEAM SIZE</small></div>
+                                    <div className="card" style={{textAlign:'center', color:'var(--success)'}}><span style={{fontSize:'24px', fontWeight:800}}>{logs.filter(l => l.date === new Date().toLocaleDateString() && l.status === 'Full Day Operational').length}</span><br/><small>PRESENT</small></div>
+                                    <div className="card" style={{textAlign:'center', color:'var(--danger)'}}><span style={{fontSize:'24px', fontWeight:800}}>{logs.filter(l => l.date === new Date().toLocaleDateString() && l.status.includes('Leave')).length}</span><br/><small>ON LEAVE</small></div>
                                 </div>
                                 <div className="card" style={{padding:0}}>
                                     <table>
-                                        <thead><tr><th>Name</th><th>Email</th><th>System Actions</th></tr></thead>
+                                        <thead><tr><th>Name</th><th>Email</th><th>Status Today</th></tr></thead>
                                         <tbody>
-                                            {team.map(m => (
-                                                <tr key={m.id}>
-                                                    <td>{m.name}</td>
-                                                    <td>{m.email}</td>
-                                                    <td>
-                                                        <button onClick={()=>resetUserPassword(m.email)} className="btn btn-ghost" style={{padding:'6px 12px', fontSize:'11px', marginRight:'8px'}}>Reset Password</button>
-                                                        <button onClick={async ()=>{if(confirm("Delete user?")) await db.collection("team").doc(m.id).delete();}} style={{color:'red', border:'none', background:'none', cursor:'pointer', fontSize:'11px'}}>Remove</button>
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                            {team.map(m => {
+                                                const s = logs.find(l => l.email === m.email && l.date === new Date().toLocaleDateString());
+                                                return (
+                                                    <tr key={m.id}>
+                                                        <td>{m.name}</td>
+                                                        <td>{m.email}</td>
+                                                        <td><b style={{color: s ? 'var(--brand)' : '#cbd5e1'}}>{s ? s.status : 'Not Marked'}</b></td>
+                                                    </tr>
+                                                )
+                                            })}
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
                         )}
 
-                        {view === "Export" && (
-                            <div className="card" style={{textAlign:'center', padding:'60px 20px'}}>
-                                <h2>Report Engine</h2>
-                                <p style={{color:'var(--text-light)', marginBottom:'32px'}}>Generate and download detailed attendance analytics.</p>
-                                <button className="btn btn-primary" onClick={() => {
-                                    let csv = "Timestamp,Email,Status,LeaveID,Date\n";
-                                    logs.forEach(l => csv += `${l.timestamp?.toDate()},${l.email},${l.status},${l.leaveId},${l.date}\n`);
-                                    const blob = new Blob([csv], { type: 'text/csv' });
-                                    const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob);
-                                    a.download = "PLMS_Pulse_Full_Report.csv"; a.click();
-                                }}>Download Comprehensive CSV Report</button>
-                            </div>
-                        )}
-                        
-                        {view === "Calendar" && (
-                            <div className="card">
-                                <h3>Operational Calendar</h3>
-                                <p style={{color:'var(--text-light)'}}>Displaying recent absence logs and leave types.</p>
-                                {logs.filter(l => l.status.includes('Leave') || l.status.includes('Half')).map(l => (
-                                    <div key={l.id} style={{padding:'12px', marginBottom:'10px', background:'#f8fafc', borderRadius:'12px', borderLeft:'4px solid var(--brand)'}}>
-                                        <div style={{display:'flex', justifyContent:'space-between'}}>
-                                            <b>{l.email.split('@')[0]}</b>
-                                            <span style={{fontSize:'12px', fontWeight:700}}>{l.status}</span>
-                                        </div>
-                                        <div style={{fontSize:'12px', color:'var(--text-light)'}}>{l.date} | Leave ID: {l.leaveId || 'N/A'}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
                         {view === "Audit Log" && (
                             <div className="card" style={{padding:0}}>
                                 <table>
-                                    <thead><tr><th>Time</th><th>Email</th><th>Action</th></tr></thead>
+                                    <thead><tr><th>Time</th><th>Email</th><th>Action</th><th>Leave ID</th></tr></thead>
                                     <tbody>
                                         {logs.map(l => (
                                             <tr key={l.id}>
                                                 <td style={{fontSize:'12px'}}>{l.date} {l.time}</td>
                                                 <td>{l.email}</td>
-                                                <td><span style={{fontWeight:700}}>{l.status}</span></td>
+                                                <td><b>{l.status}</b></td>
+                                                <td>{l.leaveId || '-'}</td>
                                             </tr>
                                         ))}
                                     </tbody>
