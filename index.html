@@ -11,25 +11,25 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --brand: #4f46e5; --bg: #f8fafc; --surface: #ffffff; --text: #1e293b; --success: #22c55e; --danger: #ef4444; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; }
+        :root { --brand: #4f46e5; --bg: #f8fafc; --text: #1e293b; --success: #22c55e; --danger: #ef4444; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--text); }
         .header { background: white; border-bottom: 1px solid #e2e8f0; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .container { max-width: 1200px; margin: 0 auto; padding: 25px; }
-        .nav { display: flex; gap: 12px; margin-bottom: 25px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; }
-        .nav-btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; background: transparent; color: #64748b; }
+        .nav { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; }
+        .nav-btn { padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; background: transparent; color: #64748b; }
         .nav-btn.active { background: var(--brand); color: white; }
-        .card { background: white; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 20px; }
         .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
-        .stat-card { text-align: center; padding: 20px; border-radius: 16px; background: white; border: 1px solid #e2e8f0; }
-        .btn { padding: 12px 24px; border-radius: 10px; font-weight: 700; border: none; cursor: pointer; width: 100%; transition: 0.2s; }
-        .btn-primary { background: var(--brand); color: white; }
-        .btn-primary:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+        .stat-card { text-align: center; padding: 20px; border-radius: 16px; background: white; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .card { background: white; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; }
         table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 16px; text-align: left; border-bottom: 1px solid #f1f5f9; }
-        .status-badge { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+        th, td { padding: 14px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+        .status-badge { padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; }
         .present { background: #dcfce7; color: #166534; }
         .pending { background: #f1f5f9; color: #64748b; }
         .leave { background: #fee2e2; color: #991b1b; }
+        .btn { padding: 12px 20px; border-radius: 10px; font-weight: 700; border: none; cursor: pointer; width: 100%; }
+        .btn-primary { background: var(--brand); color: white; }
+        .btn-primary:disabled { background: #cbd5e1; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -48,56 +48,60 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        const TEAM_NAMES = [
+            "Sheikahamed", "Vignesh Saravanan", "Lakshmanan", "Dineshk", "Barathcmk", 
+            "Bimalm", "Gopinathg", "Harpushapsingh", "Libinshaj", "Lingeswar", 
+            "Nandhinim", "Rengaswamyk", "Ramyas", "Soniyal", "Sarvananr", 
+            "Sridhar", "Senthils", "Shruthiv", "Tamilselvans", "Vanishrig", 
+            "Vigneshjm", "Vasanthl", "Geethapriya", "Gokul"
+        ];
+
         function App() {
             const [user, setUser] = useState(null);
             const [view, setView] = useState("Dashboard");
-            const [team, setTeam] = useState([]);
             const [attendance, setAttendance] = useState([]);
-            const [hasMarked, setHasMarked] = useState(false);
+            const [isMarked, setIsMarked] = useState(false);
 
             useEffect(() => {
-                // Fetch real-time team names and attendance
-                const unsubTeam = db.collection("team").onSnapshot(s => setTeam(s.docs.map(d => ({id: d.id, ...d.data()}))));
-                const unsubAtt = db.collection("attendance").onSnapshot(s => {
+                const unsub = db.collection("attendance").onSnapshot(s => {
                     const data = s.docs.map(d => d.data());
                     setAttendance(data);
                     if(user) {
-                        const marked = data.some(l => l.email === user.email && l.date === new Date().toLocaleDateString());
-                        setHasMarked(marked);
+                        const today = new Date().toLocaleDateString();
+                        setIsMarked(data.some(l => l.name === user.name && l.date === today));
                     }
                 });
-                return () => { unsubTeam(); unsubAtt(); };
+                return () => unsub();
             }, [user]);
 
-            const markToday = async (status, leaveId = "") => {
-                if(hasMarked) return;
+            const submitStatus = async (status, leaveId = "") => {
+                if(isMarked) return;
                 await db.collection("attendance").add({
-                    email: user.email,
+                    name: user.name,
                     status,
                     leaveId,
                     date: new Date().toLocaleDateString(),
                     time: new Date().toLocaleTimeString(),
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                alert("Status Synchronized!");
+                alert("Success!");
             };
 
             const downloadCSV = () => {
-                const csv = "Date,Email,Status,LeaveID\n" + attendance.map(l => `${l.date},${l.email},${l.status},${l.leaveId || '-'}`).join("\n");
+                const csv = "Date,Name,Status,LeaveID\n" + attendance.map(l => `${l.date},${l.name},${l.status},${l.leaveId || '-'}`).join("\n");
                 const blob = new Blob([csv], { type: 'text/csv' });
                 const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = "SST_Windows_Report.csv";
-                a.click();
+                const a = document.createElement('a'); a.href = url; a.download = "SST_Attendance.csv"; a.click();
             };
 
             if (!user) return (
                 <div style={{display:'flex', height:'100vh', alignItems:'center', justifyContent:'center'}}>
-                    <div className="card" style={{width:'350px', textAlign:'center'}}>
+                    <div className="card" style={{width:'320px', textAlign:'center'}}>
                         <h2 style={{color:'var(--brand)'}}>SST Windows Pulse</h2>
-                        <input id="emailIn" className="btn" style={{border:'1px solid #e2e8f0', marginBottom:'15px', width:'90%'}} placeholder="Corporate Email" />
-                        <button className="btn btn-primary" onClick={() => setUser({email: document.getElementById('emailIn').value.toLowerCase()})}>Sign In</button>
+                        <select id="userSel" className="btn" style={{border:'1px solid #ddd', marginBottom:'15px'}}>
+                            {TEAM_NAMES.map(n => <option key={n} value={n}>{n}</option>)}
+                        </select>
+                        <button className="btn btn-primary" onClick={() => setUser({name: document.getElementById('userSel').value})}>Sign In</button>
                     </div>
                 </div>
             );
@@ -108,11 +112,8 @@
             return (
                 <div>
                     <div className="header">
-                        <span style={{fontWeight:800, fontSize:'18px'}}>SST WINDOWS <span style={{color: 'var(--brand)'}}>PULSE</span></span>
-                        <div style={{display:'flex', alignItems:'center', gap:'15px'}}>
-                            <small>{user.email}</small>
-                            <button onClick={()=>setUser(null)} className="nav-btn">Logout</button>
-                        </div>
+                        <span style={{fontWeight:800}}>SST WINDOWS <span style={{color: 'var(--brand)'}}>PULSE</span></span>
+                        <div><b>{user.name}</b> <button onClick={()=>setUser(null)} className="nav-btn">Logout</button></div>
                     </div>
                     <div className="container">
                         <div className="nav">
@@ -124,25 +125,20 @@
                         {view === "Dashboard" && (
                             <div>
                                 <div className="stats">
-                                    <div className="stat-card"><h2>{team.length || 28}</h2><p>TEAM SIZE</p></div>
+                                    <div className="stat-card"><h2>{TEAM_NAMES.length}</h2><p>TEAM SIZE</p></div>
                                     <div className="stat-card" style={{color:'var(--success)'}}><h2>{todayAtt.filter(a => a.status === "Full Day Operational").length}</h2><p>PRESENT</p></div>
                                     <div className="stat-card" style={{color:'var(--danger)'}}><h2>{todayAtt.filter(a => a.status.includes("Leave")).length}</h2><p>ON LEAVE</p></div>
                                 </div>
                                 <div className="card" style={{padding:0}}>
                                     <table>
-                                        <thead><tr><th>Member Name</th><th>Status Today</th><th>Check-in Time</th></tr></thead>
+                                        <thead><tr><th>Member Name</th><th>Status Today</th></tr></thead>
                                         <tbody>
-                                            {team.map((m) => {
-                                                const s = todayAtt.find(a => a.email === m.email);
+                                            {TEAM_NAMES.map(name => {
+                                                const s = todayAtt.find(a => a.name === name);
                                                 return (
-                                                    <tr key={m.id}>
-                                                        <td><strong>{m.name || m.email.split('@')[0].replace('.', ' ').toUpperCase()}</strong></td>
-                                                        <td>
-                                                            <span className={`status-badge ${s ? (s.status.includes('Leave') ? 'leave' : 'present') : 'pending'}`}>
-                                                                {s ? s.status : "Not Marked"}
-                                                            </span>
-                                                        </td>
-                                                        <td style={{fontSize:'12px', color:'#94a3b8'}}>{s ? s.time : "--:--"}</td>
+                                                    <tr key={name}>
+                                                        <td>{name}</td>
+                                                        <td><span className={`status-badge ${s ? (s.status.includes('Leave') ? 'leave' : 'present') : 'pending'}`}>{s ? s.status : "Pending"}</span></td>
                                                     </tr>
                                                 );
                                             })}
@@ -153,20 +149,17 @@
                         )}
 
                         {view === "Mark Today" && (
-                            <div className="card" style={{maxWidth:'450px', margin:'0 auto', textAlign:'center'}}>
-                                <h3>Operational Check-in</h3>
-                                <p style={{color:'#64748b', fontSize:'14px'}}>{hasMarked ? "✅ You have already submitted for today." : "Update your current status."}</p>
+                            <div className="card" style={{maxWidth:'400px', margin:'0 auto', textAlign:'center'}}>
+                                <h3>Daily Check-in</h3>
+                                <p style={{fontSize:'14px', color:'#64748b'}}>{isMarked ? "✅ Submitted" : "Select Status"}</p>
                                 <div style={{display:'grid', gap:'10px', marginTop:'20px'}}>
-                                    <button className="btn btn-primary" disabled={hasMarked} onClick={()=>markToday("Full Day Operational")}>Full Day Operational</button>
-                                    <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px'}}>
-                                        <button className="btn" style={{background:'#eef2ff'}} disabled={hasMarked} onClick={()=>markToday("First Half")}>First Half</button>
-                                        <button className="btn" style={{background:'#eef2ff'}} disabled={hasMarked} onClick={()=>markToday("Second Half")}>Second Half</button>
-                                    </div>
-                                    <hr style={{margin:'15px 0', border:'none', borderTop:'1px solid #f1f5f9'}} />
-                                    <button className="btn" style={{background:'#fee2e2', color:'var(--danger)'}} disabled={hasMarked} onClick={() => {
-                                        const type = prompt("Leave Type (Sick/Casual/Earned):");
-                                        const id = prompt("Leave ID (Optional):");
-                                        if(type) markToday(`${type} Leave`, id);
+                                    <button className="btn btn-primary" disabled={isMarked} onClick={()=>submitStatus("Full Day Operational")}>Full Day Operational</button>
+                                    <button className="btn" style={{background:'#eef2ff'}} disabled={isMarked} onClick={()=>submitStatus("First Half")}>First Half</button>
+                                    <button className="btn" style={{background:'#eef2ff'}} disabled={isMarked} onClick={()=>submitStatus("Second Half")}>Second Half</button>
+                                    <button className="btn" style={{background:'#fee2e2', color:'var(--danger)'}} disabled={isMarked} onClick={() => {
+                                        const type = prompt("Leave Type?");
+                                        const id = prompt("Leave ID?");
+                                        if(type) submitStatus(`${type} Leave`, id);
                                     }}>Mark Leave</button>
                                 </div>
                             </div>
@@ -175,11 +168,9 @@
                         {view === "Audit Log" && (
                             <div className="card" style={{padding:0}}>
                                 <table>
-                                    <thead><tr><th>Date</th><th>User</th><th>Status</th><th>Ref ID</th></tr></thead>
+                                    <thead><tr><th>Date</th><th>Name</th><th>Status</th></tr></thead>
                                     <tbody>
-                                        {attendance.map((l, i) => (
-                                            <tr key={i}><td>{l.date} <small>{l.time}</small></td><td>{l.email}</td><td><b>{l.status}</b></td><td>{l.leaveId || '-'}</td></tr>
-                                        ))}
+                                        {attendance.map((l, i) => <tr key={i}><td>{l.date}</td><td>{l.name}</td><td>{l.status}</td></tr>)}
                                     </tbody>
                                 </table>
                             </div>
@@ -187,9 +178,7 @@
 
                         {view === "Export" && (
                             <div className="card" style={{textAlign:'center'}}>
-                                <h3>Team Reports</h3>
-                                <p>Download the latest attendance logs as a CSV file.</p>
-                                <button className="btn btn-primary" style={{width:'auto', marginTop:'20px'}} onClick={downloadCSV}>Export to CSV</button>
+                                <button className="btn btn-primary" style={{width:'auto'}} onClick={downloadCSV}>Export CSV</button>
                             </div>
                         )}
                     </div>
