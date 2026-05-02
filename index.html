@@ -5,44 +5,66 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SST Windows – Attendance Dashboard | PLMS Support Team</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Syne+Mono&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
-  <!-- Firebase Compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
-  <!-- React via CDN -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
     :root {
-      --bg: #0a0c10;
-      --surface: #10141c;
-      --surface2: #171c27;
-      --surface3: #1e2535;
-      --border: #252d3d;
-      --accent: #3b82f6;
-      --accent2: #60a5fa;
-      --accent-glow: rgba(59,130,246,0.18);
-      --green: #22c55e;
-      --red: #ef4444;
-      --yellow: #f59e0b;
-      --purple: #a855f7;
-      --orange: #f97316;
-      --text: #e8edf5;
-      --text2: #8b96a8;
-      --text3: #4a5568;
-      --radius: 12px;
-      --radius-sm: 8px;
-      --shadow: 0 4px 24px rgba(0,0,0,0.4);
+      --bg: #04060a;
+      --bg2: #070c12;
+      --surface: #0b1018;
+      --surface2: #0f1520;
+      --surface3: #141d2a;
+      --surface4: #1a2535;
+      --border: rgba(255,255,255,0.06);
+      --border2: rgba(255,255,255,0.09);
+      --border3: rgba(255,255,255,0.13);
+      --accent: #00d4ff;
+      --accent2: #0099cc;
+      --accent3: rgba(0,212,255,0.1);
+      --accent-glow: rgba(0,212,255,0.25);
+      --accent-glow2: rgba(0,212,255,0.08);
+      --green: #00ff88;
+      --green2: #00cc6a;
+      --green-dim: rgba(0,255,136,0.1);
+      --red: #ff3366;
+      --red2: #ff6688;
+      --red-dim: rgba(255,51,102,0.1);
+      --yellow: #ffaa00;
+      --yellow2: #ffc44d;
+      --yellow-dim: rgba(255,170,0,0.1);
+      --purple: #9d5cff;
+      --purple2: #b37aff;
+      --orange: #ff6b35;
+      --teal: #00ffcc;
+      --pink: #ff3399;
+      --morning: #ffaa00;
+      --extended: #00d4ff;
+      --general: #00ff88;
+      --night: #9d5cff;
+      --text: #f0f4ff;
+      --text2: #6b7fa0;
+      --text3: #2d3d55;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --radius-xs: 7px;
       --font-head: 'Syne', sans-serif;
       --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'Syne Mono', 'Courier New', monospace;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
 
     body {
       background: var(--bg);
@@ -53,335 +75,828 @@
       overflow-x: hidden;
     }
 
-    #root { min-height: 100vh; }
+    /* ── ATMOSPHERIC BACKGROUND ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 15% 0%, rgba(0,212,255,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 100%, rgba(157,92,255,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 50% 50%, rgba(0,255,136,0.03) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
 
-    /* ── Scrollbar ── */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.6;
+    }
 
-    /* ── Animations ── */
-    @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
-    @keyframes slideIn { from { opacity:0; transform:translateX(-16px); } to { opacity:1; transform:none; } }
-    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+    #root { min-height: 100vh; position: relative; z-index: 1; }
+
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes slideLeft { from { opacity:0; transform:translateX(-16px); } to { opacity:1; transform:none; } }
+    @keyframes slideUp { from { opacity:0; transform:translateY(24px) scale(0.96); } to { opacity:1; transform:none; } }
     @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes glow { 0%,100%{box-shadow:0 0 16px var(--accent-glow);} 50%{box-shadow:0 0 32px rgba(59,130,246,0.35);} }
+    @keyframes checkPop { 0%{transform:scale(0);} 60%{transform:scale(1.3);} 100%{transform:scale(1);} }
+    @keyframes glowPulse { 0%,100%{opacity:0.4;} 50%{opacity:1;} }
+    @keyframes scanline { 0%{transform:translateY(-100%);} 100%{transform:translateY(100vh);} }
+    @keyframes numberCount { from{opacity:0;transform:scale(0.8) translateY(4px);} to{opacity:1;transform:none;} }
+    @keyframes borderGlow { 0%,100%{box-shadow:0 0 0 0 transparent;} 50%{box-shadow:0 0 20px 2px rgba(0,212,255,0.15);} }
+    @keyframes shiftPulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.02);} }
+    @keyframes floatBg { 0%,100%{transform:translateY(0) rotate(0deg);} 50%{transform:translateY(-8px) rotate(1deg);} }
+    @keyframes progressFill { from{width:0;} to{width:var(--pct);} }
+    @keyframes dotBlink { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.3;transform:scale(0.7);} }
 
-    .fade-in { animation: fadeIn 0.35s ease both; }
-    .slide-in { animation: slideIn 0.3s ease both; }
+    .fade-up { animation: fadeUp 0.45s cubic-bezier(0.16,1,0.3,1) both; }
+    .fade-in { animation: fadeIn 0.3s ease both; }
 
-    /* ── Loading ── */
+    /* ── LOADER ── */
     .loader-wrap {
       display:flex; align-items:center; justify-content:center;
-      min-height:100vh; flex-direction:column; gap:20px;
+      min-height:100vh; flex-direction:column; gap:24px;
     }
-    .spinner {
-      width:40px; height:40px; border:3px solid var(--border);
-      border-top-color:var(--accent); border-radius:50%;
+    .loader-logo {
+      font-family: var(--font-head);
+      font-size: 28px; font-weight: 800;
+      background: linear-gradient(135deg, #00d4ff, #9d5cff);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: -1px;
+    }
+    .loader-ring {
+      width: 48px; height: 48px;
+      border: 2px solid rgba(0,212,255,0.15);
+      border-top-color: var(--accent);
+      border-radius: 50%;
       animation: spin 0.8s linear infinite;
+      box-shadow: 0 0 20px rgba(0,212,255,0.2);
     }
 
-    /* ── Auth Screen ── */
+    /* ── AUTH ── */
     .auth-wrap {
       min-height:100vh; display:flex; align-items:center; justify-content:center;
-      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(59,130,246,0.08) 0%, transparent 70%), var(--bg);
-      padding:16px;
+      padding:20px; position:relative; overflow:hidden;
+    }
+    .auth-bg-orb {
+      position:absolute; border-radius:50%; filter:blur(60px); pointer-events:none;
     }
     .auth-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 44px 40px;
-      width: 100%; max-width: 420px;
-      box-shadow: 0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
-      animation: fadeIn 0.4s ease;
+      background: rgba(11,16,24,0.9);
+      border: 1px solid var(--border2);
+      border-radius: 24px;
+      padding: 48px 44px;
+      width: 100%; max-width: 440px;
+      backdrop-filter: blur(40px);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,212,255,0.05), inset 0 1px 0 rgba(255,255,255,0.06);
+      animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1);
+      position: relative; z-index:1;
     }
-    .auth-logo {
-      display:flex; align-items:center; gap:12px; margin-bottom:32px;
+    .auth-card::before {
+      content:'';position:absolute;inset:0;border-radius:24px;
+      background:linear-gradient(135deg,rgba(0,212,255,0.04) 0%,transparent 60%);
+      pointer-events:none;
     }
-    .auth-logo-icon {
-      width:44px; height:44px; background: linear-gradient(135deg,#3b82f6,#1d4ed8);
-      border-radius:10px; display:flex; align-items:center; justify-content:center;
-      font-size:22px; box-shadow: 0 4px 16px rgba(59,130,246,0.4);
+    .auth-logomark {
+      width:52px;height:52px;
+      background:linear-gradient(135deg,rgba(0,212,255,0.2),rgba(157,92,255,0.2));
+      border:1px solid rgba(0,212,255,0.3);
+      border-radius:14px;display:flex;align-items:center;justify-content:center;
+      font-size:26px;margin-bottom:28px;
+      box-shadow:0 8px 24px rgba(0,212,255,0.2),inset 0 1px 0 rgba(255,255,255,0.1);
     }
-    .auth-logo-text { font-family:var(--font-head); font-size:18px; font-weight:700; }
-    .auth-logo-sub { font-size:11px; color:var(--text2); letter-spacing:0.5px; }
-    .auth-title { font-family:var(--font-head); font-size:26px; font-weight:800; margin-bottom:6px; }
-    .auth-sub { color:var(--text2); margin-bottom:28px; font-size:13px; }
-    .form-group { margin-bottom:18px; }
-    .form-label { display:block; font-size:12px; font-weight:600; color:var(--text2); margin-bottom:7px; letter-spacing:0.4px; text-transform:uppercase; }
+    .auth-headline {
+      font-family:var(--font-head);font-size:32px;font-weight:800;
+      letter-spacing:-1px;line-height:1.1;margin-bottom:8px;
+      background:linear-gradient(135deg,#ffffff 40%,rgba(255,255,255,0.6));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    }
+    .auth-sub { color:var(--text2);font-size:14px;margin-bottom:32px;line-height:1.5; }
+    .form-label {
+      display:block;font-size:11px;font-weight:700;color:var(--text2);
+      margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;
+    }
     .form-input {
-      width:100%; background:var(--surface2); border:1.5px solid var(--border);
-      color:var(--text); border-radius:var(--radius-sm); padding:11px 14px;
-      font-family:var(--font-body); font-size:14px; outline:none; transition:border 0.2s;
+      width:100%;background:rgba(255,255,255,0.03);
+      border:1px solid var(--border2);color:var(--text);
+      border-radius:var(--radius-sm);padding:13px 16px;
+      font-family:var(--font-body);font-size:14px;outline:none;
+      transition:all 0.2s;
     }
-    .form-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+    .form-input:focus {
+      border-color:var(--accent);
+      box-shadow:0 0 0 3px rgba(0,212,255,0.1),0 0 0 1px var(--accent);
+      background:rgba(0,212,255,0.03);
+    }
     .form-input::placeholder { color:var(--text3); }
+    .form-group { margin-bottom:20px; }
+
+    /* ── BUTTONS ── */
     .btn {
-      display:inline-flex; align-items:center; justify-content:center; gap:8px;
-      border:none; cursor:pointer; font-family:var(--font-body); font-weight:600;
-      border-radius:var(--radius-sm); transition:all 0.2s; text-decoration:none;
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      border:none;cursor:pointer;font-family:var(--font-body);font-weight:600;
+      border-radius:var(--radius-sm);transition:all 0.2s;text-decoration:none;
+      letter-spacing:0.2px;
     }
-    .btn:disabled { opacity:0.5; cursor:not-allowed; }
+    .btn:disabled { opacity:0.4;cursor:not-allowed; }
     .btn-primary {
-      background: linear-gradient(135deg,#3b82f6,#2563eb);
-      color:#fff; padding:12px 24px; font-size:14px; width:100%;
-      box-shadow:0 4px 16px rgba(59,130,246,0.3);
+      background:linear-gradient(135deg,rgba(0,212,255,0.9) 0%,rgba(0,140,200,0.95) 100%);
+      color:#000;padding:14px 24px;font-size:14px;font-weight:700;width:100%;
+      box-shadow:0 4px 24px rgba(0,212,255,0.3),inset 0 1px 0 rgba(255,255,255,0.2);
     }
-    .btn-primary:hover:not(:disabled) { background:linear-gradient(135deg,#60a5fa,#3b82f6); transform:translateY(-1px); box-shadow:0 6px 20px rgba(59,130,246,0.4); }
-    .btn-secondary { background:var(--surface2); color:var(--text); padding:9px 18px; font-size:13px; border:1.5px solid var(--border); }
-    .btn-secondary:hover:not(:disabled) { background:var(--surface3); border-color:var(--accent); }
-    .btn-danger { background:rgba(239,68,68,0.15); color:var(--red); padding:7px 14px; font-size:12px; border:1px solid rgba(239,68,68,0.3); }
-    .btn-danger:hover:not(:disabled) { background:rgba(239,68,68,0.25); }
-    .btn-sm { padding:7px 14px; font-size:12px; }
-    .btn-ghost { background:transparent; color:var(--text2); padding:8px 14px; font-size:13px; border:1px solid transparent; }
-    .btn-ghost:hover { background:var(--surface2); color:var(--text); }
-    .error-msg { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#fca5a5; padding:10px 14px; border-radius:var(--radius-sm); font-size:13px; margin-bottom:16px; }
-    .success-msg { background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); color:#86efac; padding:10px 14px; border-radius:var(--radius-sm); font-size:13px; margin-bottom:16px; }
+    .btn-primary:hover:not(:disabled) {
+      transform:translateY(-2px);
+      box-shadow:0 8px 32px rgba(0,212,255,0.45),0 0 0 1px rgba(0,212,255,0.4);
+    }
+    .btn-secondary {
+      background:var(--surface2);color:var(--text);
+      padding:9px 18px;font-size:13px;border:1px solid var(--border2);
+    }
+    .btn-secondary:hover:not(:disabled) { background:var(--surface3);border-color:var(--border3); }
+    .btn-danger {
+      background:rgba(255,51,102,0.08);color:var(--red2);
+      padding:7px 14px;font-size:12px;border:1px solid rgba(255,51,102,0.2);
+    }
+    .btn-danger:hover:not(:disabled) { background:rgba(255,51,102,0.16); }
+    .btn-sm { padding:7px 14px;font-size:12px; }
+    .btn-ghost {
+      background:transparent;color:var(--text2);
+      padding:8px 14px;font-size:13px;border:1px solid transparent;
+    }
+    .btn-ghost:hover { background:var(--surface2);color:var(--text);border-color:var(--border2); }
 
-    /* ── App Shell ── */
-    .app-shell { display:flex; min-height:100vh; }
+    .error-msg {
+      background:rgba(255,51,102,0.08);border:1px solid rgba(255,51,102,0.2);
+      color:#ff8899;padding:12px 15px;border-radius:var(--radius-sm);
+      font-size:13px;margin-bottom:18px;
+    }
+    .success-msg {
+      background:rgba(0,255,136,0.06);border:1px solid rgba(0,255,136,0.2);
+      color:#66ffaa;padding:12px 15px;border-radius:var(--radius-sm);
+      font-size:13px;margin-bottom:18px;
+    }
+
+    /* ── APP SHELL ── */
+    .app-shell { display:flex;min-height:100vh; }
+
+    /* ── SIDEBAR ── */
     .sidebar {
-      width:240px; min-height:100vh; background:var(--surface);
-      border-right:1px solid var(--border); display:flex; flex-direction:column;
-      position:fixed; top:0; left:0; z-index:100;
-      transition:transform 0.3s ease;
+      width:260px;min-height:100vh;
+      background:rgba(7,12,18,0.95);
+      border-right:1px solid var(--border);
+      display:flex;flex-direction:column;
+      position:fixed;top:0;left:0;z-index:100;
+      transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      backdrop-filter:blur(40px);
     }
-    .sidebar-logo {
-      padding:20px 20px 16px; border-bottom:1px solid var(--border);
-      display:flex; align-items:center; gap:10px;
+    .sidebar-header {
+      padding:24px 20px 18px;
+      border-bottom:1px solid var(--border);
     }
-    .sidebar-logo-icon {
-      width:36px; height:36px; background:linear-gradient(135deg,#3b82f6,#1d4ed8);
-      border-radius:8px; display:flex; align-items:center; justify-content:center;
-      font-size:18px; flex-shrink:0;
+    .sidebar-brand {
+      display:flex;align-items:center;gap:12px;margin-bottom:0;
     }
-    .sidebar-logo-name { font-family:var(--font-head); font-size:15px; font-weight:800; line-height:1.2; }
-    .sidebar-logo-sub { font-size:10px; color:var(--text2); letter-spacing:0.3px; }
-    .sidebar-user { padding:14px 20px; border-bottom:1px solid var(--border); }
-    .sidebar-user-name { font-weight:600; font-size:13px; }
-    .sidebar-user-role { font-size:11px; color:var(--text2); margin-top:2px; }
-    .sidebar-user-badge {
-      display:inline-block; background:rgba(59,130,246,0.15); color:var(--accent2);
-      font-size:10px; font-weight:700; padding:2px 8px; border-radius:99px;
-      border:1px solid rgba(59,130,246,0.25); margin-top:5px; letter-spacing:0.3px;
+    .sidebar-icon {
+      width:38px;height:38px;
+      background:linear-gradient(135deg,rgba(0,212,255,0.2),rgba(157,92,255,0.2));
+      border:1px solid rgba(0,212,255,0.25);
+      border-radius:10px;display:flex;align-items:center;justify-content:center;
+      font-size:19px;flex-shrink:0;
+      box-shadow:0 4px 16px rgba(0,212,255,0.15);
     }
-    .sidebar-nav { flex:1; padding:12px 10px; overflow-y:auto; }
-    .nav-section-label { font-size:10px; font-weight:700; color:var(--text3); letter-spacing:1px; text-transform:uppercase; padding:8px 10px 4px; }
+    .sidebar-name {
+      font-family:var(--font-head);font-size:16px;font-weight:800;
+      letter-spacing:-0.5px;
+      background:linear-gradient(135deg,#ffffff,rgba(255,255,255,0.7));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    }
+    .sidebar-tagline { font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:2px; }
+    .sidebar-user {
+      padding:14px 16px;border-bottom:1px solid var(--border);
+    }
+    .sidebar-user-card {
+      background:rgba(255,255,255,0.03);border:1px solid var(--border);
+      border-radius:var(--radius-sm);padding:13px 14px;
+      position:relative;overflow:hidden;
+    }
+    .sidebar-user-card::before {
+      content:'';position:absolute;top:0;left:0;right:0;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(0,212,255,0.3),transparent);
+    }
+    .sidebar-uname { font-weight:700;font-size:13px;letter-spacing:-0.2px;color:var(--text); }
+    .sidebar-uemail { font-size:11px;color:var(--text2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    .sidebar-badge {
+      display:inline-block;margin-top:7px;
+      background:linear-gradient(135deg,rgba(0,212,255,0.12),rgba(157,92,255,0.12));
+      border:1px solid rgba(0,212,255,0.2);
+      color:var(--accent);font-size:10px;font-weight:700;
+      padding:3px 10px;border-radius:99px;letter-spacing:0.5px;
+    }
+    .sidebar-nav { flex:1;padding:14px 10px;overflow-y:auto; }
+    .nav-section {
+      font-size:10px;font-weight:700;color:var(--text3);
+      letter-spacing:1.5px;text-transform:uppercase;
+      padding:10px 10px 6px;
+    }
     .nav-item {
-      display:flex; align-items:center; gap:10px; padding:10px 10px;
-      border-radius:var(--radius-sm); cursor:pointer; font-size:13px; font-weight:500;
-      color:var(--text2); transition:all 0.18s; margin-bottom:2px;
+      display:flex;align-items:center;gap:11px;padding:10px 12px;
+      border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:500;
+      color:var(--text2);transition:all 0.18s;margin-bottom:2px;
+      border:1px solid transparent;position:relative;
     }
-    .nav-item:hover { background:var(--surface2); color:var(--text); }
-    .nav-item.active { background:var(--accent-glow); color:var(--accent2); border:1px solid rgba(59,130,246,0.2); }
-    .nav-item .nav-icon { font-size:16px; width:20px; text-align:center; }
-    .sidebar-footer { padding:14px 20px; border-top:1px solid var(--border); }
-    .main-content { margin-left:240px; flex:1; min-height:100vh; }
+    .nav-item:hover { background:rgba(255,255,255,0.04);color:var(--text); }
+    .nav-item.active {
+      background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(0,212,255,0.04));
+      color:var(--accent);border-color:rgba(0,212,255,0.15);
+    }
+    .nav-item.active::before {
+      content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+      width:3px;height:60%;background:var(--accent);border-radius:0 2px 2px 0;
+    }
+    .nav-icon { font-size:15px;width:20px;text-align:center;flex-shrink:0; }
+    .sidebar-footer { padding:14px 16px;border-top:1px solid var(--border); }
+    .main-content { margin-left:260px;flex:1;min-height:100vh; }
+
+    /* ── TOPBAR ── */
     .topbar {
-      background:var(--surface); border-bottom:1px solid var(--border);
-      padding:14px 28px; display:flex; align-items:center; justify-content:space-between;
-      position:sticky; top:0; z-index:50;
+      background:rgba(7,12,18,0.8);
+      border-bottom:1px solid var(--border);
+      padding:0 28px;height:60px;
+      display:flex;align-items:center;justify-content:space-between;
+      position:sticky;top:0;z-index:50;
+      backdrop-filter:blur(40px);
     }
-    .topbar-title { font-family:var(--font-head); font-size:18px; font-weight:700; }
-    .topbar-right { display:flex; align-items:center; gap:12px; }
-    .page-content { padding:28px; max-width:1400px; }
+    .topbar-left { display:flex;align-items:center;gap:14px; }
+    .topbar-title {
+      font-family:var(--font-head);font-size:17px;font-weight:800;
+      letter-spacing:-0.4px;
+    }
+    .topbar-right { display:flex;align-items:center;gap:16px; }
+    .live-indicator {
+      display:flex;align-items:center;gap:7px;
+      background:rgba(0,255,136,0.07);
+      border:1px solid rgba(0,255,136,0.15);
+      padding:5px 11px;border-radius:99px;
+    }
+    .live-dot {
+      width:6px;height:6px;background:var(--green);border-radius:50%;
+      animation:dotBlink 2.5s infinite;
+      box-shadow:0 0 8px var(--green);
+    }
+    .live-text { font-size:11px;font-weight:700;color:var(--green);letter-spacing:0.5px; }
+    .topbar-date { font-size:12px;color:var(--text2);font-family:var(--font-mono); }
+    .topbar-avatar {
+      width:36px;height:36px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-family:var(--font-head);font-size:13px;font-weight:700;
+      border:1.5px solid rgba(0,212,255,0.3);
+      box-shadow:0 0 12px rgba(0,212,255,0.15);
+    }
 
-    /* ── Cards ── */
+    /* ── PAGE ── */
+    .page-content { padding:28px;max-width:1440px; }
+
+    /* ── CARDS ── */
     .card {
-      background:var(--surface); border:1px solid var(--border);
-      border-radius:var(--radius); padding:22px; box-shadow:var(--shadow);
+      background:rgba(11,16,24,0.9);
+      border:1px solid var(--border);
+      border-radius:var(--radius);padding:22px;
+      backdrop-filter:blur(20px);
+      position:relative;overflow:hidden;
     }
-    .card-title { font-family:var(--font-head); font-size:15px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
-    .grid { display:grid; gap:20px; }
-    .grid-2 { grid-template-columns: repeat(2,1fr); }
-    .grid-3 { grid-template-columns: repeat(3,1fr); }
-    .grid-4 { grid-template-columns: repeat(4,1fr); }
-    .grid-auto { grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); }
+    .card::before {
+      content:'';position:absolute;top:0;left:0;right:0;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent);
+      pointer-events:none;
+    }
+    .card-title {
+      font-family:var(--font-head);font-size:15px;font-weight:700;
+      margin-bottom:20px;display:flex;align-items:center;gap:8px;
+      letter-spacing:-0.3px;
+    }
 
-    /* ── Stat Cards ── */
+    .grid { display:grid;gap:18px; }
+    .grid-2 { grid-template-columns:repeat(2,1fr); }
+    .grid-3 { grid-template-columns:repeat(3,1fr); }
+    .grid-4 { grid-template-columns:repeat(4,1fr); }
+
+    /* ── STAT CARDS ── */
     .stat-card {
-      background:var(--surface); border:1px solid var(--border);
-      border-radius:var(--radius); padding:20px 22px;
-      position:relative; overflow:hidden; transition:transform 0.2s;
+      border-radius:var(--radius);padding:22px 24px;
+      position:relative;overflow:hidden;
+      transition:all 0.3s cubic-bezier(0.16,1,0.3,1);
+      cursor:default;
     }
-    .stat-card:hover { transform:translateY(-2px); }
-    .stat-card::before {
-      content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    .stat-card:hover { transform:translateY(-4px); }
+    .stat-card-bg {
+      position:absolute;inset:0;opacity:1;pointer-events:none;
+      transition:opacity 0.3s;
     }
-    .stat-card.blue::before { background:linear-gradient(90deg,#3b82f6,#60a5fa); }
-    .stat-card.green::before { background:linear-gradient(90deg,#22c55e,#4ade80); }
-    .stat-card.red::before { background:linear-gradient(90deg,#ef4444,#f87171); }
-    .stat-card.yellow::before { background:linear-gradient(90deg,#f59e0b,#fcd34d); }
-    .stat-card.purple::before { background:linear-gradient(90deg,#a855f7,#c084fc); }
-    .stat-label { font-size:11px; font-weight:600; color:var(--text2); letter-spacing:0.5px; text-transform:uppercase; margin-bottom:8px; }
-    .stat-value { font-family:var(--font-head); font-size:32px; font-weight:800; line-height:1; }
-    .stat-sub { font-size:12px; color:var(--text2); margin-top:6px; }
-    .stat-icon { position:absolute; top:18px; right:18px; font-size:24px; opacity:0.3; }
+    .stat-card:hover .stat-card-bg { opacity:1.4; }
+    .stat-card-border { position:absolute;inset:0;border-radius:var(--radius);pointer-events:none; }
 
-    /* ── Attendance Buttons ── */
-    .att-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+    .stat-card.blue {
+      background:linear-gradient(135deg,rgba(0,212,255,0.06) 0%,rgba(0,212,255,0.02) 100%);
+      border:1px solid rgba(0,212,255,0.15);
+    }
+    .stat-card.blue:hover { box-shadow:0 16px 40px rgba(0,212,255,0.12),0 0 0 1px rgba(0,212,255,0.2); }
+    .stat-card.green {
+      background:linear-gradient(135deg,rgba(0,255,136,0.06) 0%,rgba(0,255,136,0.02) 100%);
+      border:1px solid rgba(0,255,136,0.15);
+    }
+    .stat-card.green:hover { box-shadow:0 16px 40px rgba(0,255,136,0.12),0 0 0 1px rgba(0,255,136,0.2); }
+    .stat-card.red {
+      background:linear-gradient(135deg,rgba(255,51,102,0.06) 0%,rgba(255,51,102,0.02) 100%);
+      border:1px solid rgba(255,51,102,0.15);
+    }
+    .stat-card.red:hover { box-shadow:0 16px 40px rgba(255,51,102,0.12),0 0 0 1px rgba(255,51,102,0.2); }
+    .stat-card.yellow {
+      background:linear-gradient(135deg,rgba(255,170,0,0.06) 0%,rgba(255,170,0,0.02) 100%);
+      border:1px solid rgba(255,170,0,0.15);
+    }
+    .stat-card.yellow:hover { box-shadow:0 16px 40px rgba(255,170,0,0.12),0 0 0 1px rgba(255,170,0,0.2); }
+
+    .stat-icon-wrap {
+      width:42px;height:42px;border-radius:11px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:20px;margin-bottom:14px;
+    }
+    .blue .stat-icon-wrap { background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2); }
+    .green .stat-icon-wrap { background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.2); }
+    .red .stat-icon-wrap { background:rgba(255,51,102,0.1);border:1px solid rgba(255,51,102,0.2); }
+    .yellow .stat-icon-wrap { background:rgba(255,170,0,0.1);border:1px solid rgba(255,170,0,0.2); }
+
+    .stat-label {
+      font-size:11px;font-weight:700;text-transform:uppercase;
+      letter-spacing:1px;margin-bottom:8px;
+    }
+    .blue .stat-label { color:var(--accent); }
+    .green .stat-label { color:var(--green); }
+    .red .stat-label { color:var(--red2); }
+    .yellow .stat-label { color:var(--yellow); }
+
+    .stat-value {
+      font-family:var(--font-head);font-size:40px;font-weight:800;
+      line-height:1;letter-spacing:-2px;color:var(--text);
+      animation:numberCount 0.5s ease both;
+    }
+    .stat-sub { font-size:12px;color:var(--text2);margin-top:8px;line-height:1.4; }
+
+    /* ── SHIFT DISTRIBUTION SECTION ── */
+    .shift-dist-section {
+      background:rgba(11,16,24,0.9);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:22px;
+      position:relative;overflow:hidden;
+    }
+    .shift-dist-section::before {
+      content:'';position:absolute;top:0;left:0;right:0;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(0,212,255,0.15),transparent);
+      pointer-events:none;
+    }
+    .shift-dist-header {
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:20px;
+    }
+    .shift-dist-title {
+      font-family:var(--font-head);font-size:15px;font-weight:700;
+      letter-spacing:-0.3px;display:flex;align-items:center;gap:8px;
+    }
+    .shift-count-badge {
+      font-size:11px;background:rgba(255,255,255,0.06);
+      border:1px solid var(--border2);padding:3px 10px;
+      border-radius:99px;color:var(--text2);font-family:var(--font-mono);
+    }
+
+    .shift-cards-grid {
+      display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+      margin-bottom:20px;
+    }
+    .shift-dist-card {
+      border-radius:14px;padding:16px 14px;
+      position:relative;overflow:hidden;
+      transition:all 0.3s cubic-bezier(0.16,1,0.3,1);
+      cursor:default;
+    }
+    .shift-dist-card:hover { transform:translateY(-3px); }
+    .shift-dist-card.morning {
+      background:linear-gradient(135deg,rgba(255,170,0,0.08),rgba(255,170,0,0.03));
+      border:1px solid rgba(255,170,0,0.2);
+    }
+    .shift-dist-card.morning:hover { box-shadow:0 12px 32px rgba(255,170,0,0.1); }
+    .shift-dist-card.extended {
+      background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(0,212,255,0.03));
+      border:1px solid rgba(0,212,255,0.2);
+    }
+    .shift-dist-card.extended:hover { box-shadow:0 12px 32px rgba(0,212,255,0.1); }
+    .shift-dist-card.general {
+      background:linear-gradient(135deg,rgba(0,255,136,0.08),rgba(0,255,136,0.03));
+      border:1px solid rgba(0,255,136,0.2);
+    }
+    .shift-dist-card.general:hover { box-shadow:0 12px 32px rgba(0,255,136,0.1); }
+    .shift-dist-card.night {
+      background:linear-gradient(135deg,rgba(157,92,255,0.08),rgba(157,92,255,0.03));
+      border:1px solid rgba(157,92,255,0.2);
+    }
+    .shift-dist-card.night:hover { box-shadow:0 12px 32px rgba(157,92,255,0.1); }
+
+    .shift-dist-icon { font-size:22px;margin-bottom:10px; }
+    .shift-dist-name { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px; }
+    .morning .shift-dist-name { color:var(--morning); }
+    .extended .shift-dist-name { color:var(--extended); }
+    .general .shift-dist-name { color:var(--general); }
+    .night .shift-dist-name { color:var(--night); }
+
+    .shift-dist-time {
+      font-size:10px;color:var(--text2);margin-bottom:12px;
+      font-family:var(--font-mono);letter-spacing:0.3px;
+    }
+    .shift-dist-count {
+      font-family:var(--font-head);font-size:32px;font-weight:800;
+      line-height:1;letter-spacing:-1.5px;margin-bottom:10px;
+    }
+    .morning .shift-dist-count { color:var(--morning); }
+    .extended .shift-dist-count { color:var(--extended); }
+    .general .shift-dist-count { color:var(--general); }
+    .night .shift-dist-count { color:var(--night); }
+
+    .shift-members-list { display:flex;flex-direction:column;gap:5px; }
+    .shift-member-chip {
+      display:flex;align-items:center;gap:7px;
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.07);
+      border-radius:8px;padding:5px 8px;
+      font-size:11px;font-weight:600;color:var(--text);
+      transition:all 0.15s;
+    }
+    .shift-member-chip:hover { background:rgba(255,255,255,0.07); }
+    .shift-member-avatar {
+      width:20px;height:20px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:9px;font-weight:700;flex-shrink:0;
+    }
+    .shift-empty {
+      font-size:12px;color:var(--text3);
+      font-style:italic;text-align:center;padding:12px 0;
+    }
+
+    /* Shift bar visualization */
+    .shift-bar-row {
+      display:flex;flex-direction:column;gap:8px;
+    }
+    .shift-bar-item {
+      display:flex;align-items:center;gap:12px;
+    }
+    .shift-bar-label {
+      width:80px;font-size:11px;font-weight:600;color:var(--text2);
+      display:flex;align-items:center;gap:5px;flex-shrink:0;
+    }
+    .shift-bar-track {
+      flex:1;height:6px;background:rgba(255,255,255,0.05);
+      border-radius:99px;overflow:hidden;
+    }
+    .shift-bar-fill {
+      height:100%;border-radius:99px;
+      transition:width 0.8s cubic-bezier(0.16,1,0.3,1);
+    }
+    .shift-bar-num { font-size:12px;font-weight:700;color:var(--text2);font-family:var(--font-mono);width:20px;text-align:right; }
+
+    /* ── SHIFT MODAL ── */
+    .shift-modal-backdrop {
+      position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:300;
+      display:flex;align-items:center;justify-content:center;padding:16px;
+      backdrop-filter:blur(12px);
+      animation:fadeIn 0.2s ease;
+    }
+    .shift-modal {
+      background:rgba(11,16,24,0.98);
+      border:1px solid var(--border2);
+      border-radius:24px;padding:32px;width:100%;max-width:500px;
+      box-shadow:0 40px 80px rgba(0,0,0,0.8),0 0 0 1px rgba(0,212,255,0.05),inset 0 1px 0 rgba(255,255,255,0.05);
+      animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      position:relative;overflow:hidden;
+    }
+    .shift-modal::before {
+      content:'';position:absolute;top:0;left:0;right:0;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(0,212,255,0.3),transparent);
+    }
+    .shift-modal-title {
+      font-family:var(--font-head);font-size:22px;font-weight:800;
+      letter-spacing:-0.5px;margin-bottom:5px;
+    }
+    .shift-modal-sub { font-size:13px;color:var(--text2);margin-bottom:24px; }
+    .shift-grid { display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:24px; }
+    .shift-btn {
+      padding:18px 16px;border-radius:14px;
+      border:1.5px solid var(--border2);
+      background:rgba(255,255,255,0.02);
+      cursor:pointer;text-align:left;
+      transition:all 0.22s;font-family:var(--font-body);
+      position:relative;overflow:hidden;
+    }
+    .shift-btn:hover { background:rgba(255,255,255,0.05);transform:translateY(-2px); }
+    .shift-btn.selected {
+      border-color:var(--sel-color);
+      background:linear-gradient(135deg,rgba(var(--sel-rgb),0.1),rgba(var(--sel-rgb),0.04));
+      box-shadow:0 0 0 1px rgba(var(--sel-rgb),0.3),0 8px 24px rgba(var(--sel-rgb),0.15);
+    }
+    .shift-btn[data-shift="morning"] { --sel-color:#ffaa00;--sel-rgb:255,170,0; }
+    .shift-btn[data-shift="extended"] { --sel-color:#00d4ff;--sel-rgb:0,212,255; }
+    .shift-btn[data-shift="general"] { --sel-color:#00ff88;--sel-rgb:0,255,136; }
+    .shift-btn[data-shift="night"] { --sel-color:#9d5cff;--sel-rgb:157,92,255; }
+
+    .shift-btn-icon { font-size:24px;margin-bottom:10px; }
+    .shift-btn-name { font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;letter-spacing:-0.2px; }
+    .shift-btn-time { font-size:11px;font-family:var(--font-mono);font-weight:600;letter-spacing:0.3px; }
+    .shift-btn[data-shift="morning"] .shift-btn-time { color:var(--morning); }
+    .shift-btn[data-shift="extended"] .shift-btn-time { color:var(--extended); }
+    .shift-btn[data-shift="general"] .shift-btn-time { color:var(--general); }
+    .shift-btn[data-shift="night"] .shift-btn-time { color:var(--night); }
+    .shift-btn-desc { font-size:11px;color:var(--text2);margin-top:4px; }
+    .shift-check {
+      position:absolute;top:12px;right:12px;
+      width:20px;height:20px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:11px;font-weight:700;color:#000;
+      animation:checkPop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .shift-modal-actions { display:flex;gap:10px; }
+
+    /* ── ATTENDANCE BUTTONS ── */
+    .att-grid { display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:18px; }
     .att-btn {
-      padding:18px 14px; border-radius:var(--radius); border:2px solid var(--border);
-      background:var(--surface2); cursor:pointer; text-align:center;
-      transition:all 0.2s; font-family:var(--font-body);
+      padding:20px 16px;border-radius:14px;
+      border:1.5px solid var(--border2);
+      background:rgba(255,255,255,0.02);
+      cursor:pointer;text-align:center;
+      transition:all 0.25s cubic-bezier(0.16,1,0.3,1);
+      font-family:var(--font-body);position:relative;overflow:hidden;
     }
-    .att-btn:hover { border-color:var(--accent); transform:translateY(-1px); }
-    .att-btn.selected { border-color:var(--accent); background:var(--accent-glow); box-shadow:0 0 0 1px var(--accent); }
-    .att-btn.green-sel.selected { border-color:var(--green); background:rgba(34,197,94,0.12); box-shadow:0 0 0 1px var(--green); }
-    .att-btn.yellow-sel.selected { border-color:var(--yellow); background:rgba(245,158,11,0.12); box-shadow:0 0 0 1px var(--yellow); }
-    .att-btn.red-sel.selected { border-color:var(--red); background:rgba(239,68,68,0.12); box-shadow:0 0 0 1px var(--red); }
-    .att-btn-icon { font-size:24px; margin-bottom:6px; }
-    .att-btn-label { font-size:13px; font-weight:600; color:var(--text); }
-    .att-btn-sub { font-size:11px; color:var(--text2); margin-top:3px; }
+    .att-btn::before {
+      content:'';position:absolute;inset:0;opacity:0;
+      transition:opacity 0.25s;
+    }
+    .att-btn:hover { transform:translateY(-2px);border-color:var(--border3); }
+    .att-btn.selected.green-sel {
+      border-color:var(--green);
+      background:linear-gradient(135deg,rgba(0,255,136,0.1),rgba(0,255,136,0.04));
+      box-shadow:0 0 0 1px rgba(0,255,136,0.3),0 8px 24px rgba(0,255,136,0.12);
+    }
+    .att-btn.selected.yellow-sel {
+      border-color:var(--yellow);
+      background:linear-gradient(135deg,rgba(255,170,0,0.1),rgba(255,170,0,0.04));
+      box-shadow:0 0 0 1px rgba(255,170,0,0.3),0 8px 24px rgba(255,170,0,0.1);
+    }
+    .att-btn.selected.red-sel {
+      border-color:var(--red);
+      background:linear-gradient(135deg,rgba(255,51,102,0.1),rgba(255,51,102,0.04));
+      box-shadow:0 0 0 1px rgba(255,51,102,0.3),0 8px 24px rgba(255,51,102,0.1);
+    }
+    .att-btn-icon { font-size:28px;margin-bottom:9px; }
+    .att-btn-label { font-size:13px;font-weight:700;color:var(--text);letter-spacing:-0.2px; }
+    .att-btn-sub { font-size:11px;color:var(--text2);margin-top:3px; }
 
-    /* ── Leave Panel ── */
+    /* ── LEAVE PANEL ── */
     .leave-panel {
-      background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
-      padding:18px; margin-top:4px; animation:fadeIn 0.25s ease;
+      background:rgba(255,255,255,0.02);
+      border:1px solid var(--border2);
+      border-radius:14px;padding:18px;margin-bottom:14px;
+      animation:fadeUp 0.25s ease;
     }
-    .leave-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+    .leave-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px; }
     .leave-type-btn {
-      padding:10px 12px; border-radius:var(--radius-sm); border:1.5px solid var(--border);
-      background:var(--surface3); cursor:pointer; font-family:var(--font-body);
-      font-size:12px; font-weight:600; color:var(--text2); text-align:center; transition:all 0.18s;
+      padding:11px 12px;border-radius:var(--radius-sm);
+      border:1.5px solid var(--border2);
+      background:rgba(255,255,255,0.02);
+      cursor:pointer;font-family:var(--font-body);
+      font-size:12px;font-weight:700;color:var(--text2);
+      text-align:center;transition:all 0.18s;
     }
-    .leave-type-btn:hover { border-color:var(--accent); color:var(--text); }
-    .leave-type-btn.selected { border-color:var(--accent); background:var(--accent-glow); color:var(--accent2); }
+    .leave-type-btn:hover { border-color:var(--border3);color:var(--text); }
+    .leave-type-btn.selected {
+      border-color:var(--accent);background:rgba(0,212,255,0.08);color:var(--accent);
+    }
 
-    /* ── Calendar ── */
-    .calendar-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-    .calendar-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
-    .cal-day-label { text-align:center; font-size:11px; font-weight:700; color:var(--text3); padding:4px; letter-spacing:0.5px; text-transform:uppercase; }
-    .cal-day {
-      aspect-ratio:1; display:flex; align-items:center; justify-content:center;
-      border-radius:8px; font-size:12px; font-weight:500; cursor:pointer;
-      transition:all 0.15s; position:relative; flex-direction:column; gap:2px;
+    /* ── TCS/CATS CHECKLIST (SIMPLIFIED) ── */
+    .compliance-section { margin-top:0; }
+    .compliance-cards { display:flex;flex-direction:column;gap:10px; }
+
+    .compliance-card {
+      border-radius:14px;padding:16px 18px;
+      display:flex;align-items:center;gap:14px;
+      cursor:pointer;transition:all 0.25s cubic-bezier(0.16,1,0.3,1);
+      position:relative;overflow:hidden;user-select:none;
+      border:1.5px solid var(--border2);
+      background:rgba(255,255,255,0.02);
     }
-    .cal-day:hover { background:var(--surface3); }
-    .cal-day.today { background:var(--accent-glow); border:1.5px solid var(--accent); color:var(--accent2); font-weight:700; }
-    .cal-day.present { background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3); }
-    .cal-day.absent { background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.25); }
-    .cal-day.half { background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.25); }
-    .cal-day.other-month { opacity:0.3; }
-    .cal-dot { width:4px; height:4px; border-radius:50%; }
+    .compliance-card:hover { background:rgba(255,255,255,0.04);transform:translateX(3px); }
+    .compliance-card.done {
+      background:linear-gradient(135deg,rgba(0,255,136,0.07),rgba(0,255,136,0.03));
+      border-color:rgba(0,255,136,0.25);
+    }
+    .compliance-card.done:hover { box-shadow:0 4px 20px rgba(0,255,136,0.08); }
+    .compliance-card::before {
+      content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+      background:transparent;transition:background 0.25s;border-radius:3px 0 0 3px;
+    }
+    .compliance-card.done::before { background:var(--green); }
+
+    .compliance-checkbox {
+      width:24px;height:24px;border-radius:7px;
+      border:2px solid var(--border2);
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;transition:all 0.25s;
+      background:rgba(255,255,255,0.03);
+    }
+    .compliance-card.done .compliance-checkbox {
+      background:var(--green);border-color:var(--green);
+      box-shadow:0 0 12px rgba(0,255,136,0.3);
+      animation:checkPop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .compliance-check-svg {
+      width:12px;height:12px;stroke:#000;stroke-width:2.5;fill:none;
+      opacity:0;transition:opacity 0.15s;
+    }
+    .compliance-card.done .compliance-check-svg { opacity:1; }
+
+    .compliance-info { flex:1; }
+    .compliance-name {
+      font-size:13px;font-weight:700;color:var(--text);
+      letter-spacing:-0.2px;transition:color 0.2s;
+    }
+    .compliance-card.done .compliance-name { color:var(--green); }
+    .compliance-sub { font-size:11px;color:var(--text2);margin-top:2px; }
+
+    .compliance-tag {
+      font-size:10px;font-weight:700;padding:3px 10px;
+      border-radius:99px;letter-spacing:0.5px;flex-shrink:0;
+      transition:all 0.2s;
+    }
+    .compliance-card:not(.done) .compliance-tag {
+      background:rgba(255,255,255,0.05);
+      border:1px solid var(--border2);
+      color:var(--text2);
+    }
+    .compliance-card.done .compliance-tag {
+      background:rgba(0,255,136,0.1);
+      border:1px solid rgba(0,255,136,0.25);
+      color:var(--green);
+    }
+
+    .compliance-all-done {
+      text-align:center;padding:12px;
+      background:rgba(0,255,136,0.06);
+      border:1px solid rgba(0,255,136,0.15);
+      border-radius:var(--radius-sm);margin-top:12px;
+      font-size:12px;font-weight:700;color:var(--green);
+      animation:fadeUp 0.3s ease;
+    }
+
+    /* ── CALENDAR ── */
+    .calendar-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:18px; }
+    .calendar-grid { display:grid;grid-template-columns:repeat(7,1fr);gap:3px; }
+    .cal-day-label {
+      text-align:center;font-size:10px;font-weight:700;
+      color:var(--text3);padding:6px;letter-spacing:0.8px;text-transform:uppercase;
+    }
+    .cal-day {
+      aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+      border-radius:9px;font-size:12px;font-weight:500;cursor:pointer;
+      transition:all 0.15s;position:relative;flex-direction:column;gap:2px;
+      color:var(--text2);
+    }
+    .cal-day:hover { background:rgba(255,255,255,0.06);color:var(--text); }
+    .cal-day.today {
+      background:rgba(0,212,255,0.1);border:1.5px solid rgba(0,212,255,0.3);
+      color:var(--accent);font-weight:800;
+      box-shadow:0 0 12px rgba(0,212,255,0.1);
+    }
+    .cal-day.present { background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.2);color:var(--text); }
+    .cal-day.absent { background:rgba(255,51,102,0.08);border:1px solid rgba(255,51,102,0.15);color:var(--text); }
+    .cal-day.half { background:rgba(255,170,0,0.08);border:1px solid rgba(255,170,0,0.15);color:var(--text); }
+    .cal-dot { width:4px;height:4px;border-radius:50%; }
     .cal-dot.green { background:var(--green); }
     .cal-dot.red { background:var(--red); }
     .cal-dot.yellow { background:var(--yellow); }
 
-    /* ── Table ── */
-    .table-wrap { overflow-x:auto; border-radius:var(--radius-sm); border:1px solid var(--border); }
-    table { width:100%; border-collapse:collapse; font-size:13px; }
-    thead th { background:var(--surface2); padding:11px 14px; text-align:left; font-size:11px; font-weight:700; color:var(--text2); letter-spacing:0.5px; text-transform:uppercase; border-bottom:1px solid var(--border); white-space:nowrap; }
-    tbody td { padding:11px 14px; border-bottom:1px solid rgba(37,45,61,0.6); color:var(--text); }
+    /* ── TABLE ── */
+    .table-wrap { overflow-x:auto;border-radius:var(--radius-sm);border:1px solid var(--border); }
+    table { width:100%;border-collapse:collapse;font-size:13px; }
+    thead th {
+      background:rgba(255,255,255,0.03);padding:11px 14px;text-align:left;
+      font-size:10px;font-weight:700;color:var(--text2);letter-spacing:0.8px;
+      text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;
+    }
+    tbody td { padding:11px 14px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--text); }
     tbody tr:last-child td { border-bottom:none; }
     tbody tr:hover td { background:rgba(255,255,255,0.02); }
+
+    /* ── BADGES ── */
     .badge {
-      display:inline-flex; align-items:center; padding:3px 10px; border-radius:99px;
-      font-size:11px; font-weight:700; letter-spacing:0.3px;
+      display:inline-flex;align-items:center;padding:3px 10px;
+      border-radius:99px;font-size:11px;font-weight:700;letter-spacing:0.3px;
     }
-    .badge.present { background:rgba(34,197,94,0.12); color:#4ade80; border:1px solid rgba(34,197,94,0.25); }
-    .badge.absent { background:rgba(239,68,68,0.12); color:#f87171; border:1px solid rgba(239,68,68,0.25); }
-    .badge.half { background:rgba(245,158,11,0.12); color:#fcd34d; border:1px solid rgba(245,158,11,0.25); }
-    .badge.sick { background:rgba(168,85,247,0.12); color:#c084fc; border:1px solid rgba(168,85,247,0.25); }
-    .badge.casual { background:rgba(59,130,246,0.12); color:#93c5fd; border:1px solid rgba(59,130,246,0.25); }
-    .badge.earned { background:rgba(249,115,22,0.12); color:#fb923c; border:1px solid rgba(249,115,22,0.25); }
-    .badge.comp { background:rgba(20,184,166,0.12); color:#2dd4bf; border:1px solid rgba(20,184,166,0.25); }
+    .badge.present { background:rgba(0,255,136,0.1);color:var(--green);border:1px solid rgba(0,255,136,0.2); }
+    .badge.absent { background:rgba(255,51,102,0.1);color:var(--red2);border:1px solid rgba(255,51,102,0.2); }
+    .badge.half { background:rgba(255,170,0,0.1);color:var(--yellow2);border:1px solid rgba(255,170,0,0.2); }
+    .badge.sick { background:rgba(157,92,255,0.1);color:var(--purple2);border:1px solid rgba(157,92,255,0.2); }
+    .badge.casual { background:rgba(0,212,255,0.1);color:var(--accent);border:1px solid rgba(0,212,255,0.2); }
+    .badge.earned { background:rgba(255,107,53,0.1);color:#ff8f6b;border:1px solid rgba(255,107,53,0.2); }
+    .badge.compoff { background:rgba(0,255,204,0.1);color:var(--teal);border:1px solid rgba(0,255,204,0.2); }
 
-    /* ── Toast ── */
-    .toast-wrap { position:fixed; bottom:24px; right:24px; z-index:999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
+    /* ── TOAST ── */
+    .toast-wrap { position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:10px;pointer-events:none; }
     .toast {
-      background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
-      padding:13px 18px; font-size:13px; box-shadow:0 8px 32px rgba(0,0,0,0.4);
-      animation:fadeIn 0.3s ease; display:flex; align-items:center; gap:10px;
-      max-width:320px; pointer-events:all;
+      background:rgba(11,16,24,0.95);border:1px solid var(--border2);
+      border-radius:14px;padding:13px 18px;font-size:13px;
+      box-shadow:0 20px 40px rgba(0,0,0,0.5);
+      animation:slideUp 0.3s cubic-bezier(0.16,1,0.3,1);
+      display:flex;align-items:center;gap:10px;max-width:320px;
+      pointer-events:all;backdrop-filter:blur(20px);
     }
-    .toast.success { border-color:rgba(34,197,94,0.4); }
-    .toast.error { border-color:rgba(239,68,68,0.4); }
+    .toast.success { border-color:rgba(0,255,136,0.25); }
+    .toast.error { border-color:rgba(255,51,102,0.25); }
 
-    /* ── Modal ── */
-    .modal-backdrop {
-      position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:200;
-      display:flex; align-items:center; justify-content:center; padding:16px;
-      animation:fadeIn 0.2s ease;
-    }
-    .modal {
-      background:var(--surface); border:1px solid var(--border); border-radius:16px;
-      padding:28px; width:100%; max-width:460px;
-      box-shadow:0 24px 80px rgba(0,0,0,0.5);
-      animation:fadeIn 0.25s ease;
-    }
-    .modal-title { font-family:var(--font-head); font-size:18px; font-weight:700; margin-bottom:6px; }
-    .modal-sub { color:var(--text2); font-size:13px; margin-bottom:22px; }
-
-    /* ── Members ── */
+    /* ── MEMBER ROWS ── */
     .member-row {
-      display:flex; align-items:center; gap:12px; padding:12px 14px;
-      border:1px solid var(--border); border-radius:var(--radius-sm);
-      margin-bottom:8px; background:var(--surface2); transition:all 0.18s;
+      display:flex;align-items:center;gap:12px;padding:12px 14px;
+      border:1px solid var(--border);border-radius:var(--radius-sm);
+      margin-bottom:8px;background:rgba(255,255,255,0.02);transition:all 0.18s;
     }
-    .member-row:hover { border-color:var(--accent); }
+    .member-row:hover { border-color:var(--border2);background:rgba(255,255,255,0.03); }
     .avatar {
-      width:38px; height:38px; border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      font-family:var(--font-head); font-size:15px; font-weight:700; flex-shrink:0;
+      width:36px;height:36px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-family:var(--font-head);font-size:14px;font-weight:700;flex-shrink:0;
     }
-    .member-info { flex:1; min-width:0; }
-    .member-name { font-weight:600; font-size:13px; }
-    .member-email { font-size:11px; color:var(--text2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .member-name-text { font-weight:700;font-size:13px; }
+    .member-email-text { font-size:11px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
 
-    /* ── Tabs ── */
-    .tabs { display:flex; gap:4px; background:var(--surface2); padding:5px; border-radius:var(--radius-sm); margin-bottom:20px; }
-    .tab {
-      flex:1; padding:8px 14px; border-radius:6px; font-size:13px; font-weight:600;
-      cursor:pointer; text-align:center; color:var(--text2); transition:all 0.18s;
+    /* ── SHIFT TAG ── */
+    .shift-tag {
+      display:inline-flex;align-items:center;gap:5px;
+      padding:4px 10px;border-radius:99px;
+      font-size:10px;font-weight:700;
+      font-family:var(--font-mono);letter-spacing:0.3px;margin-top:5px;
     }
-    .tab.active { background:var(--surface); color:var(--text); box-shadow:0 2px 8px rgba(0,0,0,0.2); }
+    .shift-tag.morning { background:rgba(255,170,0,0.1);border:1px solid rgba(255,170,0,0.2);color:var(--morning); }
+    .shift-tag.extended { background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);color:var(--extended); }
+    .shift-tag.general { background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.2);color:var(--general); }
+    .shift-tag.night { background:rgba(157,92,255,0.1);border:1px solid rgba(157,92,255,0.2);color:var(--night); }
 
-    /* ── Export Buttons ── */
-    .export-row { display:flex; gap:10px; flex-wrap:wrap; }
-
-    /* ── Live indicator ── */
-    .live-dot {
-      width:8px; height:8px; background:var(--green); border-radius:50%;
-      animation: pulse 2s infinite;
-      display:inline-block; margin-right:6px;
+    /* ── DASHBOARD TODAY OVERVIEW ── */
+    .today-member-row {
+      display:flex;align-items:center;gap:11px;
+      padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);
     }
+    .today-member-row:last-child { border-bottom:none; }
 
-    /* ── Mobile ── */
-    .hamburger { display:none; cursor:pointer; flex-direction:column; gap:5px; padding:6px; }
-    .hamburger span { display:block; width:22px; height:2px; background:var(--text2); border-radius:2px; transition:all 0.2s; }
-    .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:99; }
+    /* ── HAMBURGER ── */
+    .hamburger { display:none;cursor:pointer;flex-direction:column;gap:5px;padding:6px; }
+    .hamburger span { display:block;width:22px;height:2px;background:var(--text2);border-radius:2px; }
+    .sidebar-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99; }
 
-    @media (max-width:900px) {
+    @media(max-width:900px) {
       .main-content { margin-left:0; }
       .sidebar { transform:translateX(-100%); }
       .sidebar.open { transform:translateX(0); }
       .sidebar-overlay.show { display:block; }
       .hamburger { display:flex; }
-      .topbar { padding:12px 16px; }
+      .topbar { padding:0 16px; }
       .page-content { padding:16px; }
       .grid-4 { grid-template-columns:repeat(2,1fr); }
       .grid-3 { grid-template-columns:1fr 1fr; }
       .grid-2 { grid-template-columns:1fr; }
+      .shift-cards-grid { grid-template-columns:repeat(2,1fr); }
+      .shift-grid { grid-template-columns:1fr; }
     }
-    @media (max-width:480px) {
+    @media(max-width:480px) {
       .grid-4 { grid-template-columns:1fr 1fr; }
       .att-grid { grid-template-columns:1fr 1fr; }
-      .auth-card { padding:28px 20px; }
+      .shift-cards-grid { grid-template-columns:1fr 1fr; }
     }
 
-    /* ── Section gap ── */
-    .section-gap { margin-bottom:24px; }
-    .flex-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+    .section-gap { margin-bottom:20px; }
+    .flex-row { display:flex;align-items:center;gap:12px;flex-wrap:wrap; }
     .spacer { flex:1; }
-    hr.divider { border:none; border-top:1px solid var(--border); margin:18px 0; }
     .text-muted { color:var(--text2); }
     .text-sm { font-size:12px; }
-    .fw-700 { font-weight:700; }
     .mt-8 { margin-top:8px; }
     .mt-12 { margin-top:12px; }
     .mt-16 { margin-top:16px; }
+    hr.divider { border:none;border-top:1px solid var(--border);margin:18px 0; }
   </style>
 </head>
 <body>
@@ -390,9 +905,6 @@
 <script type="text/babel">
 const { useState, useEffect, useRef, useCallback } = React;
 
-// ─────────────────────────────────────────────────────
-// FIREBASE CONFIGURATION — update with your actual config
-// ─────────────────────────────────────────────────────
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyAKV7ShVU8o-FS4G08pzIEACeR_YOiB51Y",
   authDomain: "woolies-pulse.firebaseapp.com",
@@ -407,10 +919,8 @@ firebase.initializeApp(FIREBASE_CONFIG);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// ─────────────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────────────
-const avatarColors = ['#3b82f6','#22c55e','#f59e0b','#ef4444','#a855f7','#f97316','#14b8a6','#ec4899'];
+// ── Helpers ──
+const avatarColors = ['#00d4ff','#00ff88','#ffaa00','#ff3366','#9d5cff','#ff6b35','#00ffcc','#ff3399'];
 const getAvatarColor = (name='') => avatarColors[name.charCodeAt(0) % avatarColors.length];
 const getInitials = (name='') => name.split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2) || '??';
 const fmtDate = (ts) => { if(!ts) return '—'; const d = ts.toDate ? ts.toDate() : new Date(ts); return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); };
@@ -420,13 +930,28 @@ const dateKey = (date) => { const d=new Date(date); return `${d.getFullYear()}-$
 const getDaysInMonth = (year, month) => new Date(year, month+1, 0).getDate();
 const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
 
+// ── Constants ──
 const LEAVE_TYPES = ['Sick','Casual','Earned','Comp Off'];
+const SHIFTS = [
+  { id:'morning', name:'Morning Shift', time:'06:00 – 15:00', icon:'🌅', desc:'Early bird · 9 hrs', color:'#ffaa00' },
+  { id:'extended', name:'Extended Shift', time:'11:30 – 20:30', icon:'🌤️', desc:'Mid-day · 9 hrs', color:'#00d4ff' },
+  { id:'general', name:'General Shift', time:'08:00 – 17:00', icon:'☀️', desc:'Standard · 9 hrs', color:'#00ff88' },
+  { id:'night', name:'Night Shift', time:'16:30 – 01:30', icon:'🌙', desc:'Night hours · 9 hrs', color:'#9d5cff' },
+];
+
+// Simplified 2-item compliance checklist
+const COMPLIANCE_ITEMS = [
+  { id:'tcs_timesheet', label:'TCS Timesheet Filed', sub:'Weekly hours submitted in iEvolve portal', tag:'TCS WEEKLY' },
+  { id:'cats_filled', label:'CATS Entry Done', sub:'SAP CATS time entry completed for this week', tag:'SAP CATS' },
+];
+
 const STATUS_OPTIONS = [
   { id:'present', label:'Present', icon:'✅', sub:'Full Day', cls:'green-sel' },
   { id:'first_half', label:'First Half', icon:'🌅', sub:'Morning only', cls:'yellow-sel' },
   { id:'second_half', label:'Second Half', icon:'🌆', sub:'Afternoon only', cls:'yellow-sel' },
-  { id:'absent', label:'Absent', icon:'🔴', sub:'Not available', cls:'red-sel' },
+  { id:'absent', label:'On Leave', icon:'🔴', sub:'Not available', cls:'red-sel' },
 ];
+
 const NAV = [
   { id:'dashboard', label:'Dashboard', icon:'📊', section:'main' },
   { id:'attendance', label:'My Attendance', icon:'📋', section:'main' },
@@ -437,15 +962,13 @@ const NAV = [
   { id:'export', label:'Export Reports', icon:'📤', section:'manage' },
 ];
 
-// ─────────────────────────────────────────────────────
-// TOAST SYSTEM
-// ─────────────────────────────────────────────────────
+// ── Toast Hook ──
 function Toast({ toasts }) {
   return (
     <div className="toast-wrap">
       {toasts.map(t => (
         <div key={t.id} className={`toast ${t.type}`}>
-          <span>{t.type === 'success' ? '✅' : '❌'}</span>
+          <span style={{fontSize:16}}>{t.type === 'success' ? '✅' : '❌'}</span>
           <span>{t.msg}</span>
         </div>
       ))}
@@ -462,9 +985,163 @@ function useToast() {
   return { toasts, add };
 }
 
-// ─────────────────────────────────────────────────────
-// AUTH SCREEN
-// ─────────────────────────────────────────────────────
+// ── Shift Modal ──
+function ShiftModal({ onConfirm, onClose }) {
+  const [selected, setSelected] = useState('');
+  return (
+    <div className="shift-modal-backdrop" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="shift-modal">
+        <div className="shift-modal-title">🕐 Select Your Shift</div>
+        <div className="shift-modal-sub">Choose the shift you are attending today</div>
+        <div className="shift-grid">
+          {SHIFTS.map(sh => (
+            <div
+              key={sh.id}
+              className={`shift-btn ${selected === sh.id ? 'selected' : ''}`}
+              data-shift={sh.id}
+              onClick={() => setSelected(sh.id)}
+            >
+              {selected === sh.id && (
+                <div className="shift-check" style={{background: sh.color}}>✓</div>
+              )}
+              <div className="shift-btn-icon">{sh.icon}</div>
+              <div className="shift-btn-name">{sh.name}</div>
+              <div className="shift-btn-time">{sh.time}</div>
+              <div className="shift-btn-desc">{sh.desc}</div>
+            </div>
+          ))}
+        </div>
+        <div className="shift-modal-actions">
+          <button className="btn btn-ghost" style={{flex:1}} onClick={onClose}>Cancel</button>
+          <button
+            className="btn btn-primary"
+            style={{flex:2}}
+            disabled={!selected}
+            onClick={() => selected && onConfirm(selected)}
+          >
+            ✓ Confirm Shift & Mark Present
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Simplified Compliance Checklist ──
+function ComplianceChecklist({ checked, onToggle }) {
+  const allDone = COMPLIANCE_ITEMS.every(i => checked[i.id]);
+  return (
+    <div className="compliance-section">
+      <div className="compliance-cards">
+        {COMPLIANCE_ITEMS.map(item => (
+          <div
+            key={item.id}
+            className={`compliance-card ${checked[item.id] ? 'done' : ''}`}
+            onClick={() => onToggle(item.id)}
+          >
+            <div className="compliance-checkbox">
+              <svg className="compliance-check-svg" viewBox="0 0 12 12">
+                <polyline points="2,6 5,9 10,3"/>
+              </svg>
+            </div>
+            <div className="compliance-info">
+              <div className="compliance-name">{item.label}</div>
+              <div className="compliance-sub">{item.sub}</div>
+            </div>
+            <div className="compliance-tag">{item.tag}</div>
+          </div>
+        ))}
+      </div>
+      {allDone && (
+        <div className="compliance-all-done">
+          🎉 All compliance tasks completed for today!
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Shift Distribution Widget (for Dashboard) ──
+function ShiftDistribution({ todayRecs, members }) {
+  const totalPresent = todayRecs.filter(r => r.status === 'present').length;
+
+  const shiftData = SHIFTS.map(sh => {
+    const recs = todayRecs.filter(r => r.status === 'present' && r.shift === sh.id);
+    const memberDetails = recs.map(r => {
+      const m = members.find(m => m.id === r.userId);
+      return { name: r.userName || r.userEmail || 'Unknown', color: getAvatarColor(r.userName||'') };
+    });
+    return { ...sh, count: recs.length, members: memberDetails };
+  });
+
+  const maxCount = Math.max(...shiftData.map(s => s.count), 1);
+
+  return (
+    <div className="shift-dist-section fade-up" style={{animationDelay:'0.25s'}}>
+      <div className="shift-dist-header">
+        <div className="shift-dist-title">
+          🕐 Shift Distribution
+          <span style={{fontSize:11,color:'var(--text2)',fontWeight:500,fontFamily:'var(--font-mono)'}}>
+            {new Date().toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short'})}
+          </span>
+        </div>
+        <div className="shift-count-badge">{totalPresent} on floor</div>
+      </div>
+
+      {/* Shift Cards with members */}
+      <div className="shift-cards-grid">
+        {shiftData.map(sh => (
+          <div key={sh.id} className={`shift-dist-card ${sh.id}`}>
+            <div className="shift-dist-icon">{sh.icon}</div>
+            <div className="shift-dist-name">{sh.name.replace(' Shift','')}</div>
+            <div className="shift-dist-time">{sh.time}</div>
+            <div className="shift-dist-count">{sh.count}</div>
+            <div className="shift-members-list">
+              {sh.members.length === 0 ? (
+                <div className="shift-empty">No one yet</div>
+              ) : sh.members.map((m, i) => (
+                <div key={i} className="shift-member-chip">
+                  <div className="shift-member-avatar" style={{background: m.color + '33', border: `1px solid ${m.color}44`}}>
+                    <span style={{color: m.color, fontSize:8}}>{getInitials(m.name)}</span>
+                  </div>
+                  <span style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{m.name.split(' ')[0]}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Bar visualization */}
+      <div style={{background:'rgba(255,255,255,0.02)',border:'1px solid var(--border)',borderRadius:12,padding:'14px 16px'}}>
+        <div style={{fontSize:11,fontWeight:700,color:'var(--text2)',letterSpacing:'0.8px',textTransform:'uppercase',marginBottom:12}}>Shift Ratio</div>
+        <div className="shift-bar-row">
+          {shiftData.map(sh => (
+            <div key={sh.id} className="shift-bar-item">
+              <div className="shift-bar-label">
+                <span>{sh.icon}</span>
+                <span style={{fontSize:10}}>{sh.name.replace(' Shift','').replace('Extended','Ext.')}</span>
+              </div>
+              <div className="shift-bar-track">
+                <div
+                  className="shift-bar-fill"
+                  style={{
+                    width: totalPresent > 0 ? `${(sh.count/totalPresent)*100}%` : '0%',
+                    background: sh.color,
+                    boxShadow: `0 0 8px ${sh.color}66`
+                  }}
+                ></div>
+              </div>
+              <div className="shift-bar-num" style={{color: sh.color}}>{sh.count}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Auth Screen ──
 function AuthScreen({ onLogin }) {
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
@@ -472,38 +1149,29 @@ function AuthScreen({ onLogin }) {
   const [err, setErr] = useState('');
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setErr(''); setLoading(true);
+    e.preventDefault(); setErr(''); setLoading(true);
     try {
       const cred = await auth.signInWithEmailAndPassword(email.trim(), pass);
-      const uid = cred.user.uid;
-      const snap = await db.collection('users').doc(uid).get();
-      if (!snap.exists) {
-        await auth.signOut();
-        setErr('Account not found in team roster. Contact admin.');
-        return;
-      }
+      const snap = await db.collection('users').doc(cred.user.uid).get();
+      if (!snap.exists) { await auth.signOut(); setErr('Account not found in team roster.'); return; }
       const userData = snap.data();
-      await db.collection('users').doc(uid).update({ lastLogin: firebase.firestore.FieldValue.serverTimestamp() });
+      await db.collection('users').doc(cred.user.uid).update({ lastLogin: firebase.firestore.FieldValue.serverTimestamp() });
       onLogin(cred.user, userData);
     } catch(ex) {
-      const msgs = { 'auth/user-not-found':'No account with this email.', 'auth/wrong-password':'Incorrect password.', 'auth/invalid-email':'Invalid email format.', 'auth/too-many-requests':'Too many attempts. Try later.' };
+      const msgs = { 'auth/user-not-found':'No account with this email.', 'auth/wrong-password':'Incorrect password.', 'auth/invalid-email':'Invalid email.', 'auth/too-many-requests':'Too many attempts. Try later.' };
       setErr(msgs[ex.code] || ex.message);
     } finally { setLoading(false); }
   };
 
   return (
     <div className="auth-wrap">
+      <div style={{position:'absolute',width:500,height:500,top:'-100px',left:'-100px',background:'radial-gradient(circle,rgba(0,212,255,0.07) 0%,transparent 70%)',borderRadius:'50%',pointerEvents:'none'}}/>
+      <div style={{position:'absolute',width:400,height:400,bottom:'-80px',right:'-80px',background:'radial-gradient(circle,rgba(157,92,255,0.07) 0%,transparent 70%)',borderRadius:'50%',pointerEvents:'none'}}/>
       <div className="auth-card">
-        <div className="auth-logo">
-          <div className="auth-logo-icon">🪟</div>
-          <div>
-            <div className="auth-logo-name">SST Windows</div>
-            <div className="auth-logo-sub">PLMS SUPPORT TEAM</div>
-          </div>
-        </div>
-        <div className="auth-title">Welcome back</div>
-        <div className="auth-sub">Sign in with your corporate credentials</div>
+        <div className="auth-logomark">🪟</div>
+        <div style={{fontSize:11,fontWeight:700,color:'var(--accent)',letterSpacing:'2px',textTransform:'uppercase',marginBottom:10}}>PLMS Support Team</div>
+        <div className="auth-headline">SST Windows</div>
+        <div className="auth-sub">Sign in with your corporate credentials to access the attendance dashboard.</div>
         {err && <div className="error-msg">⚠️ {err}</div>}
         <form onSubmit={handleLogin}>
           <div className="form-group">
@@ -515,10 +1183,12 @@ function AuthScreen({ onLogin }) {
             <input className="form-input" type="password" placeholder="Enter password" value={pass} onChange={e=>setPass(e.target.value)} required />
           </div>
           <button className="btn btn-primary" type="submit" disabled={loading}>
-            {loading ? <><div style={{width:16,height:16,border:'2px solid rgba(255,255,255,0.3)',borderTopColor:'#fff',borderRadius:'50%',animation:'spin 0.7s linear infinite'}}></div> Signing in…</> : '→ Sign In'}
+            {loading ? (
+              <><div style={{width:15,height:15,border:'2px solid rgba(0,0,0,0.3)',borderTopColor:'#000',borderRadius:'50%',animation:'spin 0.7s linear infinite'}}></div>Signing in…</>
+            ) : '→ Sign In to Dashboard'}
           </button>
         </form>
-        <div style={{marginTop:20,textAlign:'center',color:'var(--text2)',fontSize:12}}>
+        <div style={{marginTop:22,textAlign:'center',color:'var(--text3)',fontSize:11,display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
           🔒 Secured by Firebase Authentication
         </div>
       </div>
@@ -526,9 +1196,7 @@ function AuthScreen({ onLogin }) {
   );
 }
 
-// ─────────────────────────────────────────────────────
-// CHANGE PASSWORD SCREEN
-// ─────────────────────────────────────────────────────
+// ── Change Password ──
 function ChangePasswordScreen({ user, onDone, toast }) {
   const [newPass, setNewPass] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -537,7 +1205,7 @@ function ChangePasswordScreen({ user, onDone, toast }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault(); setErr('');
-    if (newPass.length < 8) { setErr('Password must be at least 8 characters.'); return; }
+    if (newPass.length < 8) { setErr('Min 8 characters required.'); return; }
     if (newPass !== confirm) { setErr('Passwords do not match.'); return; }
     setLoading(true);
     try {
@@ -551,15 +1219,9 @@ function ChangePasswordScreen({ user, onDone, toast }) {
   return (
     <div className="auth-wrap">
       <div className="auth-card">
-        <div className="auth-logo">
-          <div className="auth-logo-icon">🔐</div>
-          <div>
-            <div className="auth-logo-name">Set New Password</div>
-            <div className="auth-logo-sub">ONE-TIME SETUP REQUIRED</div>
-          </div>
-        </div>
-        <div className="auth-title">Secure your account</div>
-        <div className="auth-sub">This is your first login. Please create a permanent password to continue.</div>
+        <div className="auth-logomark">🔐</div>
+        <div className="auth-headline">Secure your account</div>
+        <div className="auth-sub">First login detected. Create a permanent password to continue.</div>
         {err && <div className="error-msg">⚠️ {err}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -568,7 +1230,7 @@ function ChangePasswordScreen({ user, onDone, toast }) {
           </div>
           <div className="form-group">
             <label className="form-label">Confirm Password</label>
-            <input className="form-input" type="password" placeholder="Repeat new password" value={confirm} onChange={e=>setConfirm(e.target.value)} required />
+            <input className="form-input" type="password" placeholder="Repeat password" value={confirm} onChange={e=>setConfirm(e.target.value)} required />
           </div>
           <button className="btn btn-primary" type="submit" disabled={loading}>
             {loading ? 'Updating…' : '→ Set Password & Continue'}
@@ -579,9 +1241,7 @@ function ChangePasswordScreen({ user, onDone, toast }) {
   );
 }
 
-// ─────────────────────────────────────────────────────
-// DASHBOARD PAGE
-// ─────────────────────────────────────────────────────
+// ── Dashboard ──
 function DashboardPage({ allRecords, members }) {
   const today = todayStr();
   const todayRecs = allRecords.filter(r => r.date === today);
@@ -593,23 +1253,20 @@ function DashboardPage({ allRecords, members }) {
 
   const leaveCounts = { Sick:0, Casual:0, Earned:0, 'Comp Off':0 };
   todayRecs.filter(r=>r.status==='absent').forEach(r => { if(r.leaveType) leaveCounts[r.leaveType] = (leaveCounts[r.leaveType]||0)+1; });
-
-  const recentActivity = [...allRecords].sort((a,b)=>{
-    const ta = a.updatedAt?.seconds||0, tb = b.updatedAt?.seconds||0;
-    return tb - ta;
-  }).slice(0,8);
+  const recentActivity = [...allRecords].sort((a,b)=>(b.updatedAt?.seconds||0)-(a.updatedAt?.seconds||0)).slice(0,8);
 
   return (
-    <div className="fade-in">
+    <div>
+      {/* Stats */}
       <div className="grid grid-4 section-gap">
         {[
           { cls:'blue', icon:'👥', label:'Total Members', value:totalMembers, sub:'Active team members' },
-          { cls:'green', icon:'✅', label:'Present Today', value:present + half, sub:`${half} on half day` },
-          { cls:'red', icon:'🔴', label:'On Leave', value:absent, sub:'Full absences' },
+          { cls:'green', icon:'✅', label:'Present Today', value:present + half, sub:`${half > 0 ? half + ' on half day' : 'Full attendance'}` },
+          { cls:'red', icon:'🏖️', label:'On Leave', value:absent, sub:'Full absences today' },
           { cls:'yellow', icon:'⏳', label:'Not Marked', value:noMark, sub:'Awaiting response' },
         ].map((s,i) => (
-          <div key={i} className={`stat-card ${s.cls} fade-in`} style={{animationDelay:`${i*0.07}s`}}>
-            <div className="stat-icon">{s.icon}</div>
+          <div key={i} className={`stat-card ${s.cls} fade-up`} style={{animationDelay:`${i*0.07}s`}}>
+            <div className="stat-icon-wrap">{s.icon}</div>
             <div className="stat-label">{s.label}</div>
             <div className="stat-value">{s.value}</div>
             <div className="stat-sub">{s.sub}</div>
@@ -617,20 +1274,35 @@ function DashboardPage({ allRecords, members }) {
         ))}
       </div>
 
-      <div className="grid grid-2 section-gap">
-        <div className="card">
-          <div className="card-title">🗓️ Today's Overview <span style={{marginLeft:'auto',color:'var(--text2)',fontSize:12}}>{new Date().toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long'})}</span></div>
+      {/* Shift Distribution — NEW PREMIUM SECTION */}
+      <div className="section-gap">
+        <ShiftDistribution todayRecs={todayRecs} members={members} />
+      </div>
+
+      {/* Bottom grid */}
+      <div className="grid grid-2">
+        {/* Today's overview */}
+        <div className="card fade-up" style={{animationDelay:'0.3s'}}>
+          <div className="card-title">
+            🗓️ Today's Team
+            <span style={{marginLeft:'auto',fontSize:11,color:'var(--text2)',fontWeight:500,fontFamily:'var(--font-mono)'}}>
+              {new Date().toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long'})}
+            </span>
+          </div>
           {members.length === 0 ? <div className="text-muted text-sm">No team members yet.</div> : members.map(m => {
             const rec = todayRecs.find(r => r.userId === m.id);
+            const shiftInfo = rec?.shift ? SHIFTS.find(s=>s.id===rec.shift) : null;
             return (
-              <div key={m.id} style={{display:'flex',alignItems:'center',gap:12,padding:'9px 0',borderBottom:'1px solid var(--border)'}}>
-                <div className="avatar" style={{background:getAvatarColor(m.name),width:32,height:32,fontSize:12}}>{getInitials(m.name)}</div>
-                <div style={{flex:1}}>
-                  <div style={{fontSize:13,fontWeight:600}}>{m.name}</div>
-                  <div style={{fontSize:11,color:'var(--text2)'}}>{m.email}</div>
+              <div key={m.id} className="today-member-row">
+                <div className="avatar" style={{background:getAvatarColor(m.name||'')+'33',border:`1.5px solid ${getAvatarColor(m.name||'')}44`,width:34,height:34,fontSize:12,color:getAvatarColor(m.name||'')}}>{getInitials(m.name||'')}</div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:13,fontWeight:700}}>{m.name}</div>
+                  {shiftInfo && (
+                    <span className={`shift-tag ${shiftInfo.id}`}>{shiftInfo.icon} {shiftInfo.time}</span>
+                  )}
                 </div>
                 {rec ? (
-                  <span className={`badge ${rec.status==='absent'?(rec.leaveType||'absent').toLowerCase().replace(' ',''):'present'}`}>
+                  <span className={`badge ${rec.status==='absent'?(rec.leaveType||'absent').toLowerCase().replace(' ',''):rec.status==='present'?'present':'half'}`}>
                     {rec.status==='present'?'Present':rec.status==='first_half'?'1st Half':rec.status==='second_half'?'2nd Half':rec.leaveType||'Absent'}
                   </span>
                 ) : <span style={{fontSize:11,color:'var(--text3)'}}>—</span>}
@@ -640,27 +1312,42 @@ function DashboardPage({ allRecords, members }) {
         </div>
 
         <div>
-          <div className="card section-gap" style={{marginBottom:16}}>
-            <div className="card-title">🏖️ Leave Breakdown Today</div>
-            <div className="grid grid-2">
+          {/* Leave breakdown */}
+          <div className="card section-gap fade-up" style={{marginBottom:18,animationDelay:'0.35s'}}>
+            <div className="card-title">🏖️ Leave Breakdown</div>
+            <div className="grid grid-2" style={{gap:10}}>
               {Object.entries(leaveCounts).map(([type,count]) => (
-                <div key={type} style={{background:'var(--surface2)',borderRadius:'var(--radius-sm)',padding:'12px 14px',border:'1px solid var(--border)'}}>
-                  <div style={{fontSize:11,color:'var(--text2)',marginBottom:4,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.4px'}}>{type}</div>
-                  <div style={{fontFamily:'var(--font-head)',fontSize:24,fontWeight:800}}>{count}</div>
+                <div key={type} style={{background:'rgba(255,255,255,0.02)',borderRadius:12,padding:'14px 16px',border:'1px solid var(--border)'}}>
+                  <div style={{fontSize:10,color:'var(--text2)',marginBottom:6,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.8px'}}>{type}</div>
+                  <div style={{fontFamily:'var(--font-head)',fontSize:28,fontWeight:800,color:count>0?'var(--red2)':'var(--text2)'}}>{count}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="card">
-            <div className="card-title">🕒 Recent Activity</div>
-            {recentActivity.length === 0 ? <div className="text-muted text-sm">No activity yet today.</div> : recentActivity.map((r,i)=>(
-              <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'7px 0',borderBottom:'1px solid rgba(37,45,61,0.5)',fontSize:12}}>
-                <div>
-                  <span style={{fontWeight:600}}>{r.userName||'Unknown'}</span>
-                  <span style={{color:'var(--text2)',marginLeft:6}}>{r.status==='present'?'marked Present':r.status==='absent'?`on ${r.leaveType||'Leave'}`:r.status==='first_half'?'1st Half':'2nd Half'}</span>
+          {/* Recent activity */}
+          <div className="card fade-up" style={{animationDelay:'0.4s'}}>
+            <div className="card-title">
+              🕒 Recent Activity
+              <div className="live-indicator" style={{marginLeft:'auto'}}>
+                <div className="live-dot"></div>
+                <div className="live-text">LIVE</div>
+              </div>
+            </div>
+            {recentActivity.length === 0 ? <div className="text-muted text-sm">No activity yet.</div> : recentActivity.map((r,i)=>(
+              <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'7px 0',borderBottom:'1px solid rgba(255,255,255,0.04)',fontSize:12,alignItems:'center'}}>
+                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                  <div className="avatar" style={{background:getAvatarColor(r.userName||'')+'33',color:getAvatarColor(r.userName||''),width:24,height:24,fontSize:10,border:`1px solid ${getAvatarColor(r.userName||'')}44`}}>{getInitials(r.userName||'')}</div>
+                  <div>
+                    <span style={{fontWeight:700}}>{r.userName||'Unknown'}</span>
+                    <span style={{color:'var(--text2)',marginLeft:6}}>
+                      {r.status==='present'?`Present${r.shift?` · ${SHIFTS.find(s=>s.id===r.shift)?.name||''}`:''}`
+                      :r.status==='absent'?`on ${r.leaveType||'Leave'}`
+                      :r.status==='first_half'?'1st Half':'2nd Half'}
+                    </span>
+                  </div>
                 </div>
-                <div style={{color:'var(--text3)'}}>{r.updatedAt ? fmtTime(r.updatedAt) : fmtDate(r.date)}</div>
+                <div style={{color:'var(--text3)',fontFamily:'var(--font-mono)',fontSize:11}}>{r.updatedAt ? fmtTime(r.updatedAt) : fmtDate(r.date)}</div>
               </div>
             ))}
           </div>
@@ -670,29 +1357,67 @@ function DashboardPage({ allRecords, members }) {
   );
 }
 
-// ─────────────────────────────────────────────────────
-// ATTENDANCE PAGE
-// ─────────────────────────────────────────────────────
+// ── Attendance Page ──
 function AttendancePage({ user, userData, toast }) {
   const today = todayStr();
   const [status, setStatus] = useState('');
+  const [shift, setShift] = useState('');
   const [leaveType, setLeaveType] = useState('');
   const [leaveId, setLeaveId] = useState('');
   const [saving, setSaving] = useState(false);
   const [existing, setExisting] = useState(null);
   const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState([]);
+  const [showShiftModal, setShowShiftModal] = useState(false);
+
+  const storageKey = `compliance_${user.uid}_${today}`;
+  const [checked, setChecked] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(storageKey) || '{}'); } catch { return {}; }
+  });
+
+  const saveChecked = (newChecked) => {
+    setChecked(newChecked);
+    try { localStorage.setItem(storageKey, JSON.stringify(newChecked)); } catch {}
+  };
+
+  const toggleCheck = (id) => {
+    const newChecked = { ...checked, [id]: !checked[id] };
+    saveChecked(newChecked);
+    if (!checked[id]) {
+      const item = COMPLIANCE_ITEMS.find(i => i.id === id);
+      toast(`✅ ${item?.label} marked done!`);
+    }
+  };
 
   useEffect(() => {
     const recId = `${user.uid}_${today}`;
     db.collection('attendance').doc(recId).get().then(snap => {
-      if (snap.exists) { const d = snap.data(); setExisting(d); setStatus(d.status); setLeaveType(d.leaveType||''); setLeaveId(d.leaveId||''); }
+      if (snap.exists) { const d = snap.data(); setExisting(d); setStatus(d.status); setShift(d.shift||''); setLeaveType(d.leaveType||''); setLeaveId(d.leaveId||''); }
       setLoading(false);
     });
-    db.collection('attendance').where('userId','==',user.uid).orderBy('date','desc').limit(15).get().then(snap => {
+    db.collection('attendance').where('userId','==',user.uid).orderBy('date','desc').limit(20).get().then(snap => {
       setHistory(snap.docs.map(d=>({id:d.id,...d.data()})));
     });
   }, [user.uid]);
+
+  const handleStatusClick = (optId) => {
+    if (optId === 'present') {
+      setShowShiftModal(true);
+    } else {
+      setStatus(optId);
+      setShift('');
+      if (optId !== 'absent') { setLeaveType(''); setLeaveId(''); }
+    }
+  };
+
+  const handleShiftConfirm = (shiftId) => {
+    setStatus('present');
+    setShift(shiftId);
+    setLeaveType('');
+    setLeaveId('');
+    setShowShiftModal(false);
+    toast(`🌟 Shift: ${SHIFTS.find(s=>s.id===shiftId)?.name}`);
+  };
 
   const handleSave = async () => {
     if (!status) { toast('Please select an attendance option.','error'); return; }
@@ -701,7 +1426,10 @@ function AttendancePage({ user, userData, toast }) {
     const recId = `${user.uid}_${today}`;
     const data = {
       userId: user.uid, userName: userData.name||user.email, userEmail: user.email,
-      date: today, status, leaveType: status==='absent'?leaveType:'', leaveId: status==='absent'?leaveId:'',
+      date: today, status,
+      shift: status === 'present' ? shift : '',
+      leaveType: status==='absent'?leaveType:'',
+      leaveId: status==='absent'?leaveId:'',
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     };
     if (!existing) data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
@@ -709,63 +1437,133 @@ function AttendancePage({ user, userData, toast }) {
       await db.collection('attendance').doc(recId).set(data, {merge:true});
       await db.collection('auditLog').add({ ...data, action: existing?'UPDATE':'CREATE', actor: userData.name||user.email });
       setExisting(data);
-      toast(existing ? 'Attendance updated ✅' : 'Attendance marked ✅');
+      const shiftInfo = shift ? SHIFTS.find(s=>s.id===shift) : null;
+      toast(existing ? 'Attendance updated ✅' : `Attendance marked ✅${shiftInfo?` · ${shiftInfo.name}`:''}`);
       setHistory(h => [data, ...h.filter(r=>r.date!==today)]);
     } catch(ex) { toast(ex.message,'error'); } finally { setSaving(false); }
   };
 
+  const selectedShift = shift ? SHIFTS.find(s=>s.id===shift) : null;
+
   if (loading) return <div style={{textAlign:'center',padding:40,color:'var(--text2)'}}>Loading…</div>;
 
   return (
-    <div className="fade-in">
+    <div className="fade-up">
+      {showShiftModal && (
+        <ShiftModal onConfirm={handleShiftConfirm} onClose={() => setShowShiftModal(false)} />
+      )}
       <div className="grid grid-2">
-        <div className="card">
-          <div className="card-title">📋 Mark Attendance — {new Date().toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'})}</div>
-          {existing && <div className="success-msg" style={{marginBottom:16}}>✅ You've already marked for today. You can update below.</div>}
-          <div className="att-grid">
-            {STATUS_OPTIONS.map(opt => (
-              <div key={opt.id} className={`att-btn ${opt.cls} ${status===opt.id?'selected':''}`} onClick={()=>{setStatus(opt.id);if(opt.id!=='absent'){setLeaveType('');setLeaveId('');}}}>
-                <div className="att-btn-icon">{opt.icon}</div>
-                <div className="att-btn-label">{opt.label}</div>
-                <div className="att-btn-sub">{opt.sub}</div>
+        <div>
+          {/* Mark Attendance Card */}
+          <div className="card section-gap">
+            <div className="card-title">
+              📋 Mark Attendance
+              <span style={{marginLeft:'auto',fontSize:11,color:'var(--text2)',fontWeight:500,fontFamily:'var(--font-mono)'}}>
+                {new Date().toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'})}
+              </span>
+            </div>
+            {existing && (
+              <div className="success-msg" style={{marginBottom:16}}>✅ Already marked today. You can update below.</div>
+            )}
+
+            <div className="att-grid">
+              {STATUS_OPTIONS.map(opt => (
+                <div
+                  key={opt.id}
+                  className={`att-btn ${opt.cls} ${status===opt.id?'selected':''}`}
+                  onClick={() => handleStatusClick(opt.id)}
+                >
+                  <div className="att-btn-icon">{opt.icon}</div>
+                  <div className="att-btn-label">{opt.label}</div>
+                  <div className="att-btn-sub">{opt.sub}</div>
+                  {opt.id === 'present' && status === 'present' && selectedShift && (
+                    <div style={{marginTop:7,fontSize:10,fontFamily:'var(--font-mono)',fontWeight:700,color:selectedShift.color}}>
+                      {selectedShift.icon} {selectedShift.time}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {status === 'present' && selectedShift && (
+              <div style={{background:`rgba(${selectedShift.id==='morning'?'255,170,0':selectedShift.id==='extended'?'0,212,255':selectedShift.id==='general'?'0,255,136':'157,92,255'},0.07)`,border:`1px solid rgba(${selectedShift.id==='morning'?'255,170,0':selectedShift.id==='extended'?'0,212,255':selectedShift.id==='general'?'0,255,136':'157,92,255'},0.2)`,borderRadius:12,padding:'12px 14px',marginBottom:14,display:'flex',alignItems:'center',gap:12}}>
+                <div style={{fontSize:26}}>{selectedShift.icon}</div>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:700,fontSize:13}}>{selectedShift.name}</div>
+                  <div style={{fontSize:12,fontFamily:'var(--font-mono)',color:selectedShift.color,fontWeight:600}}>{selectedShift.time}</div>
+                </div>
+                <button className="btn btn-ghost btn-sm" onClick={() => setShowShiftModal(true)} style={{fontSize:11}}>Change</button>
               </div>
-            ))}
+            )}
+
+            {status === 'present' && !selectedShift && (
+              <div style={{background:'rgba(255,170,0,0.07)',border:'1px solid rgba(255,170,0,0.2)',borderRadius:12,padding:'10px 14px',marginBottom:14,fontSize:12,color:'var(--yellow2)'}}>
+                ⚠️ No shift selected. Click <strong>Present</strong> to pick your shift.
+              </div>
+            )}
+
+            {status === 'absent' && (
+              <div className="leave-panel">
+                <div style={{fontWeight:700,fontSize:13,marginBottom:12,color:'var(--text)'}}>
+                  🏖️ Leave Type <span style={{color:'var(--red)',marginLeft:4}}>*</span>
+                </div>
+                <div className="leave-grid">
+                  {LEAVE_TYPES.map(lt => (
+                    <div key={lt} className={`leave-type-btn ${leaveType===lt?'selected':''}`} onClick={()=>setLeaveType(lt)}>{lt}</div>
+                  ))}
+                </div>
+                <div className="form-group" style={{marginBottom:0}}>
+                  <label className="form-label">Leave ID <span style={{color:'var(--text3)'}}>— Optional</span></label>
+                  <input className="form-input" placeholder="e.g. HR-2024-045" value={leaveId} onChange={e=>setLeaveId(e.target.value)} />
+                </div>
+              </div>
+            )}
+
+            <button className="btn btn-primary mt-8" onClick={handleSave} disabled={saving}>
+              {saving ? 'Saving…' : existing ? '↻ Update Attendance' : '✓ Mark Attendance'}
+            </button>
           </div>
 
-          {status === 'absent' && (
-            <div className="leave-panel">
-              <div style={{fontWeight:700,fontSize:13,marginBottom:10}}>🏖️ Select Leave Type <span style={{color:'var(--red)',marginLeft:4}}>*</span></div>
-              <div className="leave-grid">
-                {LEAVE_TYPES.map(lt => (
-                  <div key={lt} className={`leave-type-btn ${leaveType===lt?'selected':''}`} onClick={()=>setLeaveType(lt)}>{lt}</div>
-                ))}
-              </div>
-              <div className="form-group" style={{marginBottom:0}}>
-                <label className="form-label">Leave ID / Reference <span style={{color:'var(--text3)'}}>— Optional</span></label>
-                <input className="form-input" placeholder="e.g. HR-2024-045" value={leaveId} onChange={e=>setLeaveId(e.target.value)} />
-              </div>
+          {/* Simplified Compliance Card */}
+          <div className="card">
+            <div className="card-title">
+              ✅ Compliance Checklist
+              <span style={{marginLeft:'auto',fontSize:11,color:'var(--text2)',fontWeight:500}}>
+                {COMPLIANCE_ITEMS.filter(i=>checked[i.id]).length}/{COMPLIANCE_ITEMS.length} done
+              </span>
             </div>
-          )}
-
-          <button className="btn btn-primary mt-16" onClick={handleSave} disabled={saving}>
-            {saving ? 'Saving…' : existing ? '↻ Update Attendance' : '✓ Mark Attendance'}
-          </button>
+            <div style={{fontSize:12,color:'var(--text2)',marginBottom:16,lineHeight:1.5}}>
+              Mark your weekly TCS and CATS submissions as done.
+            </div>
+            <ComplianceChecklist checked={checked} onToggle={toggleCheck} />
+          </div>
         </div>
 
+        {/* History */}
         <div className="card">
           <div className="card-title">📆 My Attendance History</div>
           {history.length === 0 ? <div className="text-muted text-sm">No records yet.</div> : (
             <div className="table-wrap">
               <table>
-                <thead><tr><th>Date</th><th>Status</th><th>Leave</th></tr></thead>
+                <thead>
+                  <tr><th>Date</th><th>Status</th><th>Shift</th><th>Leave</th></tr>
+                </thead>
                 <tbody>
-                  {history.map((r,i)=>(
-                    <tr key={i}>
-                      <td style={{fontSize:12}}>{r.date}</td>
-                      <td><span className={`badge ${r.status==='present'?'present':r.status==='absent'?'absent':'half'}`}>{r.status==='first_half'?'1st Half':r.status==='second_half'?'2nd Half':r.status}</span></td>
-                      <td>{r.leaveType ? <span className={`badge ${(r.leaveType||'').toLowerCase().replace(' ','')}`}>{r.leaveType}</span> : '—'}</td>
-                    </tr>
-                  ))}
+                  {history.map((r,i)=>{
+                    const shiftInfo = r.shift ? SHIFTS.find(s=>s.id===r.shift) : null;
+                    return (
+                      <tr key={i}>
+                        <td style={{fontSize:12,color:'var(--text2)',fontFamily:'var(--font-mono)'}}>{r.date}</td>
+                        <td><span className={`badge ${r.status==='present'?'present':r.status==='absent'?'absent':'half'}`}>{r.status==='first_half'?'1st Half':r.status==='second_half'?'2nd Half':r.status}</span></td>
+                        <td>
+                          {shiftInfo ? (
+                            <span className={`shift-tag ${shiftInfo.id}`}>{shiftInfo.icon} {shiftInfo.time}</span>
+                          ) : '—'}
+                        </td>
+                        <td>{r.leaveType ? <span className={`badge ${(r.leaveType||'').toLowerCase().replace(' ','')}`}>{r.leaveType}</span> : '—'}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -776,9 +1574,7 @@ function AttendancePage({ user, userData, toast }) {
   );
 }
 
-// ─────────────────────────────────────────────────────
-// CALENDAR PAGE
-// ─────────────────────────────────────────────────────
+// ── Calendar Page ──
 function CalendarPage({ allRecords, members }) {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -807,11 +1603,11 @@ function CalendarPage({ allRecords, members }) {
   const totalMembers = members.length;
 
   return (
-    <div className="fade-in grid grid-2" style={{alignItems:'start'}}>
+    <div className="fade-up grid grid-2" style={{alignItems:'start'}}>
       <div className="card">
         <div className="calendar-header">
           <button className="btn btn-ghost btn-sm" onClick={prevMonth}>‹ Prev</button>
-          <div style={{fontFamily:'var(--font-head)',fontWeight:700,fontSize:16}}>{monthName}</div>
+          <div style={{fontFamily:'var(--font-head)',fontWeight:800,fontSize:15,letterSpacing:'-0.3px'}}>{monthName}</div>
           <button className="btn btn-ghost btn-sm" onClick={nextMonth}>Next ›</button>
         </div>
         <div className="calendar-grid">
@@ -821,22 +1617,22 @@ function CalendarPage({ allRecords, members }) {
             const day = i+1;
             const dateStr = `${year}-${monthStr}-${String(day).padStart(2,'0')}`;
             const recs = dayData[day]||[];
-            const pCount = recs.filter(r=>r.status==='present'||r.status==='first_half'||r.status==='second_half').length;
+            const pCount = recs.filter(r=>r.status!=='absent').length;
             const aCount = recs.filter(r=>r.status==='absent').length;
             let cls = '';
-            if(pCount > 0 && aCount === 0) cls='present';
-            else if(aCount > 0 && pCount === 0) cls='absent';
-            else if(pCount > 0 && aCount > 0) cls='half';
-            const isToday = dateStr === today;
+            if(pCount>0&&aCount===0) cls='present';
+            else if(aCount>0&&pCount===0) cls='absent';
+            else if(pCount>0&&aCount>0) cls='half';
+            const isToday = dateStr===today;
             return (
-              <div key={day} className={`cal-day ${isToday?'today':''} ${cls} ${selected===day?'selected':''}`} onClick={()=>setSelected(selected===day?null:day)} style={selected===day?{outline:'2px solid var(--accent)'}:{}}>
-                <span style={{fontSize:12}}>{day}</span>
+              <div key={day} className={`cal-day ${isToday?'today':''} ${cls}`} onClick={()=>setSelected(selected===day?null:day)} style={selected===day?{outline:'2px solid var(--accent)',outlineOffset:'1px'}:{}}>
+                <span>{day}</span>
                 {recs.length>0 && <div className={`cal-dot ${cls==='present'?'green':cls==='absent'?'red':'yellow'}`}></div>}
               </div>
             );
           })}
         </div>
-        <div style={{display:'flex',gap:12,marginTop:16,flexWrap:'wrap'}}>
+        <div style={{display:'flex',gap:16,marginTop:16,flexWrap:'wrap'}}>
           {[{cls:'present',dot:'green',label:'All Present'},{cls:'half',dot:'yellow',label:'Mixed'},{cls:'absent',dot:'red',label:'On Leave'}].map(l=>(
             <div key={l.cls} style={{display:'flex',alignItems:'center',gap:6,fontSize:12,color:'var(--text2)'}}>
               <div className={`cal-dot ${l.dot}`}></div>{l.label}
@@ -850,35 +1646,48 @@ function CalendarPage({ allRecords, members }) {
           <>
             <div className="card-title">
               {`${String(selected).padStart(2,'0')} ${new Date(year,month).toLocaleDateString('en-IN',{month:'long'})} ${year}`}
-              <span style={{marginLeft:'auto',fontSize:12,color:'var(--text2)'}}>
-                <span className="live-dot"></span>{selectedRecs.length}/{totalMembers} marked
+              <span style={{marginLeft:'auto',fontSize:11,color:'var(--text2)'}}>
+                <div className="live-indicator" style={{marginLeft:8,display:'inline-flex'}}>
+                  <div className="live-dot"></div>
+                  <div className="live-text">{selectedRecs.length}/{totalMembers}</div>
+                </div>
               </span>
             </div>
-            {selectedRecs.length === 0 ? <div className="text-muted text-sm">No records for this day.</div> : selectedRecs.map((r,i)=>(
-              <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'9px 0',borderBottom:'1px solid var(--border)'}}>
-                <div style={{display:'flex',alignItems:'center',gap:10}}>
-                  <div className="avatar" style={{background:getAvatarColor(r.userName||''),width:30,height:30,fontSize:11}}>{getInitials(r.userName||'')}</div>
-                  <div>
-                    <div style={{fontSize:13,fontWeight:600}}>{r.userName||r.userEmail}</div>
-                    {r.leaveType && <div style={{fontSize:11,color:'var(--text2)'}}>{r.leaveType}{r.leaveId?` · ${r.leaveId}`:''}</div>}
+            {selectedRecs.length === 0 ? <div className="text-muted text-sm">No records.</div> : selectedRecs.map((r,i)=>{
+              const shiftInfo = r.shift ? SHIFTS.find(s=>s.id===r.shift) : null;
+              return (
+                <div key={i} style={{padding:'10px 0',borderBottom:'1px solid var(--border)'}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                    <div style={{display:'flex',alignItems:'center',gap:10}}>
+                      <div className="avatar" style={{background:getAvatarColor(r.userName||'')+'33',color:getAvatarColor(r.userName||''),width:30,height:30,fontSize:11,border:`1px solid ${getAvatarColor(r.userName||'')}44`}}>{getInitials(r.userName||'')}</div>
+                      <div>
+                        <div style={{fontSize:13,fontWeight:700}}>{r.userName||r.userEmail}</div>
+                        {r.leaveType && <div style={{fontSize:11,color:'var(--text2)'}}>{r.leaveType}{r.leaveId?` · ${r.leaveId}`:''}</div>}
+                      </div>
+                    </div>
+                    <span className={`badge ${r.status==='present'?'present':r.status==='absent'?'absent':'half'}`}>
+                      {r.status==='first_half'?'1st Half':r.status==='second_half'?'2nd Half':r.status}
+                    </span>
                   </div>
+                  {shiftInfo && (
+                    <div style={{marginLeft:40,marginTop:5}}>
+                      <span className={`shift-tag ${shiftInfo.id}`}>{shiftInfo.icon} {shiftInfo.name} · {shiftInfo.time}</span>
+                    </div>
+                  )}
                 </div>
-                <span className={`badge ${r.status==='present'?'present':r.status==='absent'?'absent':'half'}`}>
-                  {r.status==='first_half'?'1st Half':r.status==='second_half'?'2nd Half':r.status}
-                </span>
-              </div>
-            ))}
+              );
+            })}
             <hr className="divider"/>
             <div style={{display:'flex',gap:16,fontSize:12,color:'var(--text2)'}}>
-              <span>✅ Present: <b style={{color:'var(--green)'}}>{selectedRecs.filter(r=>r.status!=='absent').length}</b></span>
-              <span>🔴 Absent: <b style={{color:'var(--red)'}}>{selectedRecs.filter(r=>r.status==='absent').length}</b></span>
-              <span>❓ No data: <b style={{color:'var(--text3)'}}>{totalMembers - selectedRecs.length}</b></span>
+              <span>✅ <b style={{color:'var(--green)'}}>{selectedRecs.filter(r=>r.status!=='absent').length}</b></span>
+              <span>🔴 <b style={{color:'var(--red)'}}>{selectedRecs.filter(r=>r.status==='absent').length}</b></span>
+              <span>❓ <b style={{color:'var(--text3)'}}>{totalMembers - selectedRecs.length}</b></span>
             </div>
           </>
         ) : (
-          <div style={{textAlign:'center',padding:'40px 0',color:'var(--text2)'}}>
-            <div style={{fontSize:36,marginBottom:12}}>📅</div>
-            <div style={{fontWeight:600}}>Select a day</div>
+          <div style={{textAlign:'center',padding:'60px 0',color:'var(--text2)'}}>
+            <div style={{fontSize:48,marginBottom:16,filter:'grayscale(0.3)'}}>📅</div>
+            <div style={{fontFamily:'var(--font-head)',fontWeight:700,fontSize:16,color:'var(--text)'}}>Select a day</div>
             <div style={{fontSize:12,marginTop:6}}>Click any date to see attendance details</div>
           </div>
         )}
@@ -887,36 +1696,39 @@ function CalendarPage({ allRecords, members }) {
   );
 }
 
-// ─────────────────────────────────────────────────────
-// TEAM OVERVIEW
-// ─────────────────────────────────────────────────────
+// ── Team Overview ──
 function TeamPage({ allRecords, members }) {
   const today = todayStr();
   const todayRecs = allRecords.filter(r=>r.date===today);
   return (
-    <div className="fade-in">
+    <div className="fade-up">
+      <div className="section-gap">
+        <ShiftDistribution todayRecs={todayRecs} members={members} />
+      </div>
       <div className="card">
         <div className="card-title">👥 Team Overview — Today</div>
         {members.length === 0 ? <div className="text-muted text-sm">No team members yet.</div> : (
           <div className="table-wrap">
             <table>
-              <thead><tr><th>Member</th><th>Email</th><th>Role</th><th>Today</th><th>Leave Type</th><th>Last Login</th></tr></thead>
+              <thead><tr><th>Member</th><th>Email</th><th>Role</th><th>Today</th><th>Shift</th><th>Leave Type</th><th>Last Login</th></tr></thead>
               <tbody>
                 {members.map(m=>{
                   const rec = todayRecs.find(r=>r.userId===m.id);
+                  const shiftInfo = rec?.shift ? SHIFTS.find(s=>s.id===rec.shift) : null;
                   return (
                     <tr key={m.id}>
                       <td>
                         <div style={{display:'flex',alignItems:'center',gap:9}}>
-                          <div className="avatar" style={{background:getAvatarColor(m.name||''),width:30,height:30,fontSize:11}}>{getInitials(m.name||'')}</div>
-                          <span style={{fontWeight:600}}>{m.name||'—'}</span>
+                          <div className="avatar" style={{background:getAvatarColor(m.name||'')+'33',color:getAvatarColor(m.name||''),width:30,height:30,fontSize:11,border:`1px solid ${getAvatarColor(m.name||'')}44`}}>{getInitials(m.name||'')}</div>
+                          <span style={{fontWeight:700}}>{m.name||'—'}</span>
                         </div>
                       </td>
                       <td style={{fontSize:12,color:'var(--text2)'}}>{m.email}</td>
-                      <td><span style={{fontSize:11,color:'var(--accent2)'}}>{m.role||'Member'}</span></td>
-                      <td>{rec ? <span className={`badge ${rec.status==='present'?'present':rec.status==='absent'?'absent':'half'}`}>{rec.status==='first_half'?'1st Half':rec.status==='second_half'?'2nd Half':rec.status}</span> : <span style={{color:'var(--text3)',fontSize:12}}>Not marked</span>}</td>
+                      <td><span style={{fontSize:11,color:'var(--accent)',fontWeight:700}}>{m.role||'Member'}</span></td>
+                      <td>{rec ? <span className={`badge ${rec.status==='present'?'present':rec.status==='absent'?'absent':'half'}`}>{rec.status==='first_half'?'1st Half':rec.status==='second_half'?'2nd Half':rec.status}</span> : <span style={{color:'var(--text3)',fontSize:12}}>—</span>}</td>
+                      <td>{shiftInfo ? <span className={`shift-tag ${shiftInfo.id}`}>{shiftInfo.icon} {shiftInfo.time}</span> : '—'}</td>
                       <td>{rec?.leaveType ? <span className={`badge ${(rec.leaveType||'').toLowerCase().replace(' ','')}`}>{rec.leaveType}</span> : '—'}</td>
-                      <td style={{fontSize:12,color:'var(--text2)'}}>{m.lastLogin ? fmtDate(m.lastLogin) : '—'}</td>
+                      <td style={{fontSize:12,color:'var(--text2)',fontFamily:'var(--font-mono)'}}>{m.lastLogin ? fmtDate(m.lastLogin) : '—'}</td>
                     </tr>
                   );
                 })}
@@ -929,9 +1741,7 @@ function TeamPage({ allRecords, members }) {
   );
 }
 
-// ─────────────────────────────────────────────────────
-// AUDIT LOG
-// ─────────────────────────────────────────────────────
+// ── Audit Log ──
 function AuditPage() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -942,23 +1752,27 @@ function AuditPage() {
     }).catch(()=>setLoading(false));
   },[]);
   return (
-    <div className="fade-in card">
-      <div className="card-title">🔍 Audit Log <span style={{fontSize:12,color:'var(--text2)',marginLeft:'auto'}}>Last 100 entries</span></div>
-      {loading ? <div className="text-muted text-sm">Loading…</div> : logs.length===0 ? <div className="text-muted text-sm">No audit entries yet.</div> : (
+    <div className="fade-up card">
+      <div className="card-title">🔍 Audit Log <span style={{fontSize:11,color:'var(--text2)',marginLeft:'auto'}}>Last 100 entries</span></div>
+      {loading ? <div className="text-muted text-sm">Loading…</div> : logs.length===0 ? <div className="text-muted text-sm">No entries yet.</div> : (
         <div className="table-wrap">
           <table>
-            <thead><tr><th>Actor</th><th>Action</th><th>Status</th><th>Leave</th><th>Date</th><th>Timestamp</th></tr></thead>
+            <thead><tr><th>Actor</th><th>Action</th><th>Status</th><th>Shift</th><th>Leave</th><th>Date</th><th>Time</th></tr></thead>
             <tbody>
-              {logs.map((l,i)=>(
-                <tr key={i}>
-                  <td style={{fontWeight:600}}>{l.actor||l.userName||'—'}</td>
-                  <td><span style={{fontSize:11,fontWeight:700,color:l.action==='CREATE'?'var(--green)':'var(--yellow)'}}>{l.action||'UPDATE'}</span></td>
-                  <td><span className={`badge ${l.status==='present'?'present':l.status==='absent'?'absent':'half'}`}>{l.status==='first_half'?'1st Half':l.status==='second_half'?'2nd Half':l.status}</span></td>
-                  <td>{l.leaveType?<span className={`badge ${(l.leaveType||'').toLowerCase().replace(' ','')}`}>{l.leaveType}</span>:'—'}</td>
-                  <td style={{fontSize:12,color:'var(--text2)'}}>{l.date||'—'}</td>
-                  <td style={{fontSize:12,color:'var(--text2)'}}>{l.updatedAt?fmtTime(l.updatedAt):'—'}</td>
-                </tr>
-              ))}
+              {logs.map((l,i)=>{
+                const shiftInfo = l.shift ? SHIFTS.find(s=>s.id===l.shift) : null;
+                return (
+                  <tr key={i}>
+                    <td style={{fontWeight:700}}>{l.actor||l.userName||'—'}</td>
+                    <td><span style={{fontSize:11,fontWeight:700,color:l.action==='CREATE'?'var(--green)':'var(--yellow)'}}>{l.action||'UPDATE'}</span></td>
+                    <td><span className={`badge ${l.status==='present'?'present':l.status==='absent'?'absent':'half'}`}>{l.status==='first_half'?'1st':l.status==='second_half'?'2nd':l.status}</span></td>
+                    <td>{shiftInfo?<span className={`shift-tag ${shiftInfo.id}`}>{shiftInfo.icon} {shiftInfo.time}</span>:'—'}</td>
+                    <td>{l.leaveType?<span className={`badge ${(l.leaveType||'').toLowerCase().replace(' ','')}`}>{l.leaveType}</span>:'—'}</td>
+                    <td style={{fontSize:12,color:'var(--text2)',fontFamily:'var(--font-mono)'}}>{l.date||'—'}</td>
+                    <td style={{fontSize:12,color:'var(--text2)',fontFamily:'var(--font-mono)'}}>{l.updatedAt?fmtTime(l.updatedAt):'—'}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -967,9 +1781,7 @@ function AuditPage() {
   );
 }
 
-// ─────────────────────────────────────────────────────
-// MANAGE TEAM
-// ─────────────────────────────────────────────────────
+// ── Manage Team ──
 function ManagePage({ members, toast, onRefresh }) {
   const [showAdd, setShowAdd] = useState(false);
   const [name, setName] = useState('');
@@ -987,11 +1799,7 @@ function ManagePage({ members, toast, onRefresh }) {
     setAdding(true);
     try {
       const cred = await auth.createUserWithEmailAndPassword(email.trim(), tempPass);
-      await db.collection('users').doc(cred.user.uid).set({
-        name, email: email.trim(), role, isFirstLogin: true,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        lastLogin: null,
-      });
+      await db.collection('users').doc(cred.user.uid).set({ name, email:email.trim(), role, isFirstLogin:true, createdAt:firebase.firestore.FieldValue.serverTimestamp(), lastLogin:null });
       await auth.signOut();
       toast(`${name} added to team ✅`);
       setShowAdd(false); setName(''); setEmail(''); setTempPass(''); setRole('Member');
@@ -1000,199 +1808,134 @@ function ManagePage({ members, toast, onRefresh }) {
   };
 
   const handleRemove = async (m) => {
-    if (!window.confirm(`Remove ${m.name} from team? This deletes their Firestore record only.`)) return;
+    if (!window.confirm(`Remove ${m.name}?`)) return;
     setRemoving(m.id);
     try {
       await db.collection('users').doc(m.id).delete();
-      toast(`${m.name} removed from team.`);
+      toast(`${m.name} removed.`);
       onRefresh();
     } catch(ex) { toast(ex.message,'error'); } finally { setRemoving(null); }
   };
 
   return (
-    <div className="fade-in">
+    <div className="fade-up">
       <div className="card">
-        <div className="flex-row" style={{marginBottom:16}}>
+        <div className="flex-row" style={{marginBottom:20}}>
           <div className="card-title" style={{margin:0}}>⚙️ Manage Team Members</div>
           <div className="spacer"/>
-          <button className="btn btn-primary btn-sm" onClick={()=>setShowAdd(!showAdd)}>
+          <button className="btn btn-primary btn-sm" style={{width:'auto'}} onClick={()=>setShowAdd(!showAdd)}>
             {showAdd ? '✕ Cancel' : '＋ Add Member'}
           </button>
         </div>
-
         {showAdd && (
-          <form onSubmit={handleAdd} className="leave-panel" style={{marginBottom:20}}>
+          <form onSubmit={handleAdd} style={{background:'rgba(255,255,255,0.02)',border:'1px solid var(--border2)',borderRadius:14,padding:20,marginBottom:22}}>
             <div style={{fontWeight:700,marginBottom:14,fontSize:14}}>➕ New Team Member</div>
             {err && <div className="error-msg">{err}</div>}
             <div className="grid grid-2" style={{gap:12}}>
-              <div className="form-group" style={{marginBottom:0}}>
-                <label className="form-label">Full Name</label>
-                <input className="form-input" placeholder="John Smith" value={name} onChange={e=>setName(e.target.value)} required/>
-              </div>
-              <div className="form-group" style={{marginBottom:0}}>
-                <label className="form-label">Corporate Email</label>
-                <input className="form-input" type="email" placeholder="john@company.com" value={email} onChange={e=>setEmail(e.target.value)} required/>
-              </div>
-              <div className="form-group" style={{marginBottom:0}}>
-                <label className="form-label">Role</label>
-                <select className="form-input" value={role} onChange={e=>setRole(e.target.value)}>
-                  <option>Member</option><option>Lead</option><option>Manager</option><option>Admin</option>
-                </select>
-              </div>
-              <div className="form-group" style={{marginBottom:0}}>
-                <label className="form-label">Temporary Password</label>
-                <input className="form-input" type="password" placeholder="Min 6 chars" value={tempPass} onChange={e=>setTempPass(e.target.value)} required/>
-              </div>
+              <div className="form-group" style={{marginBottom:0}}><label className="form-label">Full Name</label><input className="form-input" placeholder="John Smith" value={name} onChange={e=>setName(e.target.value)} required/></div>
+              <div className="form-group" style={{marginBottom:0}}><label className="form-label">Email</label><input className="form-input" type="email" placeholder="john@co.com" value={email} onChange={e=>setEmail(e.target.value)} required/></div>
+              <div className="form-group" style={{marginBottom:0}}><label className="form-label">Role</label><select className="form-input" value={role} onChange={e=>setRole(e.target.value)}><option>Member</option><option>Lead</option><option>Manager</option><option>Admin</option></select></div>
+              <div className="form-group" style={{marginBottom:0}}><label className="form-label">Temp Password</label><input className="form-input" type="password" placeholder="Min 6 chars" value={tempPass} onChange={e=>setTempPass(e.target.value)} required/></div>
             </div>
-            <button className="btn btn-primary mt-12" type="submit" disabled={adding} style={{width:'auto',padding:'10px 24px'}}>
-              {adding?'Creating…':'Create Account'}
-            </button>
-            <div style={{fontSize:11,color:'var(--text2)',marginTop:8}}>ℹ️ User will be forced to change password on first login.</div>
+            <button className="btn btn-primary mt-12" type="submit" disabled={adding} style={{width:'auto',padding:'10px 24px'}}>{adding?'Creating…':'Create Account'}</button>
+            <div style={{fontSize:11,color:'var(--text2)',marginTop:8}}>ℹ️ User must change password on first login.</div>
           </form>
         )}
-
         <div>
-          {members.length === 0 ? <div className="text-muted text-sm">No team members yet. Add one above.</div> :
-            members.map(m=>(
-              <div key={m.id} className="member-row">
-                <div className="avatar" style={{background:getAvatarColor(m.name||'')}}>
-                  {getInitials(m.name||'')}
-                </div>
-                <div className="member-info">
-                  <div className="member-name">{m.name||'—'}</div>
-                  <div className="member-email">{m.email}</div>
-                </div>
-                <span style={{fontSize:11,color:'var(--accent2)',fontWeight:600}}>{m.role||'Member'}</span>
-                {m.isFirstLogin && <span style={{fontSize:10,background:'rgba(245,158,11,0.15)',color:'#fcd34d',padding:'2px 8px',borderRadius:99,border:'1px solid rgba(245,158,11,0.3)'}}>FIRST LOGIN</span>}
-                <button className="btn btn-danger btn-sm" onClick={()=>handleRemove(m)} disabled={removing===m.id}>
-                  {removing===m.id?'…':'✕'}
-                </button>
+          {members.length === 0 ? <div className="text-muted text-sm">No members yet.</div> : members.map(m=>(
+            <div key={m.id} className="member-row">
+              <div className="avatar" style={{background:getAvatarColor(m.name||'')+'33',color:getAvatarColor(m.name||''),border:`1.5px solid ${getAvatarColor(m.name||'')}44`}}>{getInitials(m.name||'')}</div>
+              <div style={{flex:1,minWidth:0}}>
+                <div className="member-name-text">{m.name||'—'}</div>
+                <div className="member-email-text">{m.email}</div>
               </div>
-            ))
-          }
+              <span style={{fontSize:11,color:'var(--accent)',fontWeight:700}}>{m.role||'Member'}</span>
+              {m.isFirstLogin && <span style={{fontSize:10,background:'rgba(255,170,0,0.08)',color:'var(--yellow)',padding:'2px 8px',borderRadius:99,border:'1px solid rgba(255,170,0,0.2)',fontWeight:700}}>FIRST LOGIN</span>}
+              <button className="btn btn-danger btn-sm" onClick={()=>handleRemove(m)} disabled={removing===m.id}>{removing===m.id?'…':'✕'}</button>
+            </div>
+          ))}
         </div>
       </div>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────────────
-// EXPORT PAGE
-// ─────────────────────────────────────────────────────
+// ── Export Page ──
 function ExportPage({ allRecords, members, toast }) {
   const [loading, setLoading] = useState('');
 
   const buildCSV = (records) => {
-    const header = ['Date','Member Name','Email','Status','Leave Type','Leave ID','Updated At'];
-    const rows = records.map(r => [
-      r.date||'', r.userName||'', r.userEmail||'', r.status||'', r.leaveType||'', r.leaveId||'',
-      r.updatedAt ? (r.updatedAt.toDate ? r.updatedAt.toDate().toISOString() : r.updatedAt) : ''
-    ]);
-    return [header, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const header = ['Date','Member Name','Email','Status','Shift','Shift Time','Leave Type','Leave ID','Updated At'];
+    const rows = records.map(r => {
+      const shiftInfo = r.shift ? SHIFTS.find(s=>s.id===r.shift) : null;
+      return [r.date||'',r.userName||'',r.userEmail||'',r.status||'',shiftInfo?.name||'',shiftInfo?.time||'',r.leaveType||'',r.leaveId||'',r.updatedAt?(r.updatedAt.toDate?r.updatedAt.toDate().toISOString():r.updatedAt):''];
+    });
+    return [header,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
   };
 
   const download = (csv, filename) => {
-    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href=url; a.download=filename; a.click();
     URL.revokeObjectURL(url);
   };
 
-  const exportDaily = async () => {
-    setLoading('daily');
-    const today = todayStr();
-    const filtered = allRecords.filter(r => r.date === today);
-    download(buildCSV(filtered), `attendance_daily_${today}.csv`);
-    toast('Daily report downloaded ✅');
-    setLoading('');
-  };
-
-  const exportWeekly = async () => {
-    setLoading('weekly');
-    const now = new Date();
-    const day = now.getDay();
-    const monday = new Date(now); monday.setDate(now.getDate() - (day===0?6:day-1));
-    monday.setHours(0,0,0,0);
-    const filtered = allRecords.filter(r => {
-      const d = new Date(r.date); return d >= monday;
-    });
-    download(buildCSV(filtered), `attendance_weekly_${dateKey(monday)}.csv`);
-    toast('Weekly report downloaded ✅');
-    setLoading('');
-  };
-
-  const exportMonthly = async () => {
-    setLoading('monthly');
-    const now = new Date();
-    const prefix = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-    const filtered = allRecords.filter(r => r.date && r.date.startsWith(prefix));
-    download(buildCSV(filtered), `attendance_monthly_${prefix}.csv`);
-    toast('Monthly report downloaded ✅');
-    setLoading('');
-  };
-
-  const exportFull = async () => {
-    setLoading('full');
-    download(buildCSV(allRecords), `attendance_full_export_${todayStr()}.csv`);
-    toast('Full export downloaded ✅');
-    setLoading('');
-  };
-
-  const totalToday = allRecords.filter(r=>r.date===todayStr()).length;
+  const today = todayStr();
   const now = new Date();
   const prefix = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-  const totalMonth = allRecords.filter(r=>r.date&&r.date.startsWith(prefix)).length;
+
+  const exports = [
+    {key:'daily',label:'Daily Report',sub:`Today — ${today}`,icon:'📋',fn:async()=>{download(buildCSV(allRecords.filter(r=>r.date===today)),`attendance_daily_${today}.csv`);toast('Daily downloaded ✅');}},
+    {key:'weekly',label:'Weekly Report',sub:'This week',icon:'📆',fn:async()=>{
+      const day=now.getDay(),mon=new Date(now);mon.setDate(now.getDate()-(day===0?6:day-1));mon.setHours(0,0,0,0);
+      download(buildCSV(allRecords.filter(r=>new Date(r.date)>=mon)),`attendance_weekly_${dateKey(mon)}.csv`);toast('Weekly downloaded ✅');
+    }},
+    {key:'monthly',label:'Monthly Report',sub:now.toLocaleDateString('en-IN',{month:'long',year:'numeric'}),icon:'🗓️',fn:async()=>{download(buildCSV(allRecords.filter(r=>r.date&&r.date.startsWith(prefix))),`attendance_monthly_${prefix}.csv`);toast('Monthly downloaded ✅');}},
+    {key:'full',label:'Full Export',sub:'All records all time',icon:'📦',fn:async()=>{download(buildCSV(allRecords),`attendance_full_${today}.csv`);toast('Full export downloaded ✅');}},
+  ];
 
   return (
-    <div className="fade-in">
-      <div className="grid grid-2 section-gap">
+    <div className="fade-up">
+      <div className="grid grid-4 section-gap">
         {[
           {icon:'📊',label:'Total Records',value:allRecords.length,sub:'All time'},
-          {icon:'📅',label:'Today',value:totalToday,sub:'Marks today'},
-          {icon:'📆',label:'This Month',value:totalMonth,sub:'Records this month'},
-          {icon:'👥',label:'Team Size',value:members.length,sub:'Active members'},
+          {icon:'📅',label:'Today',value:allRecords.filter(r=>r.date===today).length,sub:'Marks today'},
+          {icon:'📆',label:'This Month',value:allRecords.filter(r=>r.date&&r.date.startsWith(prefix)).length,sub:'This month'},
+          {icon:'👥',label:'Team Size',value:members.length,sub:'Active'},
         ].map((s,i)=>(
-          <div key={i} className="stat-card blue fade-in" style={{animationDelay:`${i*0.07}s`}}>
-            <div className="stat-icon">{s.icon}</div>
+          <div key={i} className={`stat-card ${i===0?'blue':i===1?'green':i===2?'yellow':'red'} fade-up`} style={{animationDelay:`${i*0.07}s`}}>
+            <div className="stat-icon-wrap">{s.icon}</div>
             <div className="stat-label">{s.label}</div>
             <div className="stat-value">{s.value}</div>
             <div className="stat-sub">{s.sub}</div>
           </div>
         ))}
       </div>
-
       <div className="card">
-        <div className="card-title">📤 Export Attendance Reports</div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:14}}>
-          {[
-            {key:'daily',label:'Daily Report',sub:`Today — ${todayStr()}`,icon:'📋',fn:exportDaily},
-            {key:'weekly',label:'Weekly Report',sub:'This week (Mon–today)',icon:'📆',fn:exportWeekly},
-            {key:'monthly',label:'Monthly Report',sub:`${new Date().toLocaleDateString('en-IN',{month:'long',year:'numeric'})}`,icon:'🗓️',fn:exportMonthly},
-            {key:'full',label:'Full Export',sub:'All records all time',icon:'📦',fn:exportFull},
-          ].map(btn=>(
-            <div key={btn.key} style={{background:'var(--surface2)',border:'1px solid var(--border)',borderRadius:'var(--radius)',padding:'18px'}}>
-              <div style={{fontSize:28,marginBottom:10}}>{btn.icon}</div>
-              <div style={{fontFamily:'var(--font-head)',fontWeight:700,fontSize:15,marginBottom:4}}>{btn.label}</div>
-              <div style={{fontSize:12,color:'var(--text2)',marginBottom:14}}>{btn.sub}</div>
-              <button className="btn btn-secondary btn-sm" style={{width:'100%'}} onClick={btn.fn} disabled={loading===btn.key}>
-                {loading===btn.key ? '⬇️ Preparing…' : '⬇️ Download CSV'}
+        <div className="card-title">📤 Export Reports</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))',gap:14}}>
+          {exports.map(btn=>(
+            <div key={btn.key} style={{background:'rgba(255,255,255,0.02)',border:'1px solid var(--border)',borderRadius:14,padding:'20px'}}>
+              <div style={{fontSize:30,marginBottom:11}}>{btn.icon}</div>
+              <div style={{fontFamily:'var(--font-head)',fontWeight:800,fontSize:15,marginBottom:4,letterSpacing:'-0.2px'}}>{btn.label}</div>
+              <div style={{fontSize:12,color:'var(--text2)',marginBottom:16}}>{btn.sub}</div>
+              <button className="btn btn-secondary btn-sm" style={{width:'100%'}} onClick={async()=>{setLoading(btn.key);await btn.fn();setLoading('');}} disabled={loading===btn.key}>
+                {loading===btn.key?'⬇️ Preparing…':'⬇️ Download CSV'}
               </button>
             </div>
           ))}
         </div>
-        <div style={{marginTop:20,fontSize:12,color:'var(--text2)',background:'var(--surface2)',padding:'12px 14px',borderRadius:'var(--radius-sm)',border:'1px solid var(--border)'}}>
-          ℹ️ <strong>CSV Export</strong> includes: Date, Member Name, Email, Status, Leave Type, Leave ID, and Timestamp. Compatible with Excel, Google Sheets, and all BI tools.
+        <div style={{marginTop:18,fontSize:12,color:'var(--text2)',background:'rgba(255,255,255,0.02)',padding:'12px 14px',borderRadius:var(--radius-sm),border:'1px solid var(--border)'}}>
+          ℹ️ CSV includes: Date, Name, Email, Status, Shift, Shift Time, Leave Type, Leave ID, Timestamp.
         </div>
       </div>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────────────
-// MAIN APP
-// ─────────────────────────────────────────────────────
+// ── MAIN APP ──
 function App() {
-  const [authState, setAuthState] = useState('loading'); // loading | auth | first-login | app
+  const [authState, setAuthState] = useState('loading');
   const [fireUser, setFireUser] = useState(null);
   const [userData, setUserData] = useState(null);
   const [page, setPage] = useState('dashboard');
@@ -1201,7 +1944,6 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { toasts, add: addToast } = useToast();
 
-  // Auth listener
   useEffect(() => {
     const unsub = auth.onAuthStateChanged(async (u) => {
       if (u) {
@@ -1210,24 +1952,16 @@ function App() {
           const data = snap.data();
           setFireUser(u); setUserData(data);
           setAuthState(data.isFirstLogin ? 'first-login' : 'app');
-        } else {
-          await auth.signOut(); setAuthState('auth');
-        }
-      } else {
-        setFireUser(null); setUserData(null); setAuthState('auth');
-      }
+        } else { await auth.signOut(); setAuthState('auth'); }
+      } else { setFireUser(null); setUserData(null); setAuthState('auth'); }
     });
     return unsub;
   }, []);
 
-  // Load members
   const loadMembers = useCallback(() => {
-    db.collection('users').get().then(snap => {
-      setMembers(snap.docs.map(d=>({id:d.id,...d.data()})));
-    });
+    db.collection('users').get().then(snap => setMembers(snap.docs.map(d=>({id:d.id,...d.data()}))));
   }, []);
 
-  // Load all attendance records (real-time)
   useEffect(() => {
     if (authState !== 'app') return;
     loadMembers();
@@ -1237,14 +1971,13 @@ function App() {
     return unsub;
   }, [authState, loadMembers]);
 
-  const handleLogout = () => { auth.signOut(); };
-
   const pageTitles = { dashboard:'Dashboard', attendance:'My Attendance', calendar:'Calendar View', team:'Team Overview', audit:'Audit Log', manage:'Manage Team', export:'Export Reports' };
 
   if (authState === 'loading') return (
     <div className="loader-wrap">
-      <div className="spinner"></div>
-      <div style={{color:'var(--text2)',fontSize:13}}>Loading SST Windows…</div>
+      <div className="loader-ring"></div>
+      <div className="loader-logo">SST Windows</div>
+      <div style={{color:'var(--text3)',fontSize:12,letterSpacing:'1.5px',textTransform:'uppercase'}}>Loading Dashboard…</div>
     </div>
   );
   if (authState === 'auth') return <AuthScreen onLogin={(u,d)=>{setFireUser(u);setUserData(d);setAuthState(d.isFirstLogin?'first-login':'app');}} />;
@@ -1254,22 +1987,24 @@ function App() {
 
   return (
     <div className="app-shell">
-      {/* Sidebar overlay */}
       <div className={`sidebar-overlay ${sidebarOpen?'show':''}`} onClick={()=>setSidebarOpen(false)}/>
 
-      {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen?'open':''}`}>
-        <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">🪟</div>
-          <div>
-            <div className="sidebar-logo-name">SST Windows</div>
-            <div className="sidebar-logo-sub">PLMS SUPPORT</div>
+        <div className="sidebar-header">
+          <div className="sidebar-brand">
+            <div className="sidebar-icon">🪟</div>
+            <div>
+              <div className="sidebar-name">SST Windows</div>
+              <div className="sidebar-tagline">PLMS Support</div>
+            </div>
           </div>
         </div>
         <div className="sidebar-user">
-          <div className="sidebar-user-name">{userData?.name || fireUser?.email}</div>
-          <div className="sidebar-user-role">{fireUser?.email}</div>
-          <div className="sidebar-user-badge">{userData?.role || 'Member'}</div>
+          <div className="sidebar-user-card">
+            <div className="sidebar-uname">{userData?.name || fireUser?.email}</div>
+            <div className="sidebar-uemail">{fireUser?.email}</div>
+            <div className="sidebar-badge">{userData?.role || 'Member'}</div>
+          </div>
         </div>
         <nav className="sidebar-nav">
           {['main','manage'].map(section => {
@@ -1277,7 +2012,7 @@ function App() {
             if (!items.length) return null;
             return (
               <div key={section}>
-                <div className="nav-section-label">{section==='main'?'Main':'Management'}</div>
+                <div className="nav-section">{section==='main'?'Main':'Management'}</div>
                 {items.map(n=>(
                   <div key={n.id} className={`nav-item ${page===n.id?'active':''}`} onClick={()=>{setPage(n.id);setSidebarOpen(false);}}>
                     <span className="nav-icon">{n.icon}</span>{n.label}
@@ -1288,24 +2023,27 @@ function App() {
           })}
         </nav>
         <div className="sidebar-footer">
-          <button className="btn btn-ghost" style={{width:'100%',justifyContent:'flex-start'}} onClick={handleLogout}>🚪 Sign Out</button>
+          <button className="btn btn-ghost" style={{width:'100%',justifyContent:'flex-start'}} onClick={()=>auth.signOut()}>
+            🚪 Sign Out
+          </button>
         </div>
       </aside>
 
-      {/* Main */}
       <main className="main-content">
         <div className="topbar">
-          <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <div className="topbar-left">
             <div className="hamburger" onClick={()=>setSidebarOpen(!sidebarOpen)}>
               <span/><span/><span/>
             </div>
             <div className="topbar-title">{pageTitles[page]||''}</div>
           </div>
           <div className="topbar-right">
-            <span style={{fontSize:12,color:'var(--text2)'}}>
-              <span className="live-dot"></span>Live
-            </span>
-            <div className="avatar" style={{background:getAvatarColor(userData?.name||''),width:32,height:32,fontSize:12}}>
+            <div className="live-indicator">
+              <div className="live-dot"></div>
+              <div className="live-text">LIVE</div>
+            </div>
+            <div className="topbar-date">{new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</div>
+            <div className="topbar-avatar" style={{background:getAvatarColor(userData?.name||'')+'33',color:getAvatarColor(userData?.name||'')}}>
               {getInitials(userData?.name||'')}
             </div>
           </div>
