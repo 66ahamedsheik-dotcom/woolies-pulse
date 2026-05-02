@@ -1574,422 +1574,94 @@ function AttendancePage({ user, userData, toast }) {
   );
 }
 
+// ── TEAM DATA ──
+const TEAM_MEMBERS = [
+  "Sheik Ahamed S", "Vignesh Saravanan Lakshmanan", "Raymond Nadwie", 
+  "Dineshk", "Barathcmk", "Bimalm", "Gopinathg", "Harpushapsingh", 
+  "Libinshaj", "Lingeswar", "Nandhinim", "Rengaswamyk", "Ramyas", 
+  "Soniyal", "Sarvananr", "Sridhar", "Senthils", "Shruthiv", 
+  "Tamilselvans", "Vanishrig", "Vigneshjm", "Vasanthl", "Geethapriya", "Gokul"
+];
+
 // ── Calendar Page ──
-function CalendarPage({ allRecords, members }) {
-  const now = new Date();
-  const [year, setYear] = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth());
-  const [selected, setSelected] = useState(null);
+function CalendarPage({ allRecords, user }) {
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [month, setMonth] = useState(new Date().getMonth());
 
-  const daysInMonth = getDaysInMonth(year, month);
-  const firstDay = getFirstDayOfMonth(year, month);
-  const monthStr = String(month+1).padStart(2,'0');
-  const monthName = new Date(year, month).toLocaleDateString('en-IN',{month:'long',year:'numeric'});
-  const today = todayStr();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDay = new Date(year, month, 1).getDay();
+  const monthName = new Date(year, month).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
 
-  const dayData = {};
-  allRecords.forEach(r => {
-    if (r.date && r.date.startsWith(`${year}-${monthStr}`)) {
-      const day = parseInt(r.date.split('-')[2]);
-      if (!dayData[day]) dayData[day] = [];
-      dayData[day].push(r);
-    }
-  });
-
-  const prevMonth = () => { if(month===0){setMonth(11);setYear(y=>y-1);}else{setMonth(m=>m-1);} setSelected(null); };
-  const nextMonth = () => { if(month===11){setMonth(0);setYear(y=>y+1);}else{setMonth(m=>m+1);} setSelected(null); };
-
-  const selectedRecs = selected ? (dayData[selected]||[]) : [];
-  const totalMembers = members.length;
+  const myRecords = allRecords.filter(r => r.userId === user.uid);
 
   return (
-    <div className="fade-up grid grid-2" style={{alignItems:'start'}}>
-      <div className="card">
-        <div className="calendar-header">
-          <button className="btn btn-ghost btn-sm" onClick={prevMonth}>‹ Prev</button>
-          <div style={{fontFamily:'var(--font-head)',fontWeight:800,fontSize:15,letterSpacing:'-0.3px'}}>{monthName}</div>
-          <button className="btn btn-ghost btn-sm" onClick={nextMonth}>Next ›</button>
-        </div>
-        <div className="calendar-grid">
-          {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d=><div key={d} className="cal-day-label">{d}</div>)}
-          {Array.from({length:firstDay}).map((_,i)=><div key={`e${i}`}></div>)}
-          {Array.from({length:daysInMonth}).map((_,i)=>{
-            const day = i+1;
-            const dateStr = `${year}-${monthStr}-${String(day).padStart(2,'0')}`;
-            const recs = dayData[day]||[];
-            const pCount = recs.filter(r=>r.status!=='absent').length;
-            const aCount = recs.filter(r=>r.status==='absent').length;
-            let cls = '';
-            if(pCount>0&&aCount===0) cls='present';
-            else if(aCount>0&&pCount===0) cls='absent';
-            else if(pCount>0&&aCount>0) cls='half';
-            const isToday = dateStr===today;
-            return (
-              <div key={day} className={`cal-day ${isToday?'today':''} ${cls}`} onClick={()=>setSelected(selected===day?null:day)} style={selected===day?{outline:'2px solid var(--accent)',outlineOffset:'1px'}:{}}>
-                <span>{day}</span>
-                {recs.length>0 && <div className={`cal-dot ${cls==='present'?'green':cls==='absent'?'red':'yellow'}`}></div>}
-              </div>
-            );
-          })}
-        </div>
-        <div style={{display:'flex',gap:16,marginTop:16,flexWrap:'wrap'}}>
-          {[{cls:'present',dot:'green',label:'All Present'},{cls:'half',dot:'yellow',label:'Mixed'},{cls:'absent',dot:'red',label:'On Leave'}].map(l=>(
-            <div key={l.cls} style={{display:'flex',alignItems:'center',gap:6,fontSize:12,color:'var(--text2)'}}>
-              <div className={`cal-dot ${l.dot}`}></div>{l.label}
-            </div>
-          ))}
+    <div className="card fade-up">
+      <div className="calendar-header">
+        <div className="shift-modal-title">📅 {monthName}</div>
+        <div className="flex-row">
+          <button className="btn btn-secondary btn-sm" onClick={() => setMonth(m => m === 0 ? 11 : m - 1)}>Prev</button>
+          <button className="btn btn-secondary btn-sm" onClick={() => setMonth(m => m === 11 ? 0 : m + 1)}>Next</button>
         </div>
       </div>
-
-      <div className="card">
-        {selected ? (
-          <>
-            <div className="card-title">
-              {`${String(selected).padStart(2,'0')} ${new Date(year,month).toLocaleDateString('en-IN',{month:'long'})} ${year}`}
-              <span style={{marginLeft:'auto',fontSize:11,color:'var(--text2)'}}>
-                <div className="live-indicator" style={{marginLeft:8,display:'inline-flex'}}>
-                  <div className="live-dot"></div>
-                  <div className="live-text">{selectedRecs.length}/{totalMembers}</div>
-                </div>
-              </span>
-            </div>
-            {selectedRecs.length === 0 ? <div className="text-muted text-sm">No records.</div> : selectedRecs.map((r,i)=>{
-              const shiftInfo = r.shift ? SHIFTS.find(s=>s.id===r.shift) : null;
-              return (
-                <div key={i} style={{padding:'10px 0',borderBottom:'1px solid var(--border)'}}>
-                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                    <div style={{display:'flex',alignItems:'center',gap:10}}>
-                      <div className="avatar" style={{background:getAvatarColor(r.userName||'')+'33',color:getAvatarColor(r.userName||''),width:30,height:30,fontSize:11,border:`1px solid ${getAvatarColor(r.userName||'')}44`}}>{getInitials(r.userName||'')}</div>
-                      <div>
-                        <div style={{fontSize:13,fontWeight:700}}>{r.userName||r.userEmail}</div>
-                        {r.leaveType && <div style={{fontSize:11,color:'var(--text2)'}}>{r.leaveType}{r.leaveId?` · ${r.leaveId}`:''}</div>}
-                      </div>
-                    </div>
-                    <span className={`badge ${r.status==='present'?'present':r.status==='absent'?'absent':'half'}`}>
-                      {r.status==='first_half'?'1st Half':r.status==='second_half'?'2nd Half':r.status}
-                    </span>
-                  </div>
-                  {shiftInfo && (
-                    <div style={{marginLeft:40,marginTop:5}}>
-                      <span className={`shift-tag ${shiftInfo.id}`}>{shiftInfo.icon} {shiftInfo.name} · {shiftInfo.time}</span>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-            <hr className="divider"/>
-            <div style={{display:'flex',gap:16,fontSize:12,color:'var(--text2)'}}>
-              <span>✅ <b style={{color:'var(--green)'}}>{selectedRecs.filter(r=>r.status!=='absent').length}</b></span>
-              <span>🔴 <b style={{color:'var(--red)'}}>{selectedRecs.filter(r=>r.status==='absent').length}</b></span>
-              <span>❓ <b style={{color:'var(--text3)'}}>{totalMembers - selectedRecs.length}</b></span>
-            </div>
-          </>
-        ) : (
-          <div style={{textAlign:'center',padding:'60px 0',color:'var(--text2)'}}>
-            <div style={{fontSize:48,marginBottom:16,filter:'grayscale(0.3)'}}>📅</div>
-            <div style={{fontFamily:'var(--font-head)',fontWeight:700,fontSize:16,color:'var(--text)'}}>Select a day</div>
-            <div style={{fontSize:12,marginTop:6}}>Click any date to see attendance details</div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ── Team Overview ──
-function TeamPage({ allRecords, members }) {
-  const today = todayStr();
-  const todayRecs = allRecords.filter(r=>r.date===today);
-  return (
-    <div className="fade-up">
-      <div className="section-gap">
-        <ShiftDistribution todayRecs={todayRecs} members={members} />
-      </div>
-      <div className="card">
-        <div className="card-title">👥 Team Overview — Today</div>
-        {members.length === 0 ? <div className="text-muted text-sm">No team members yet.</div> : (
-          <div className="table-wrap">
-            <table>
-              <thead><tr><th>Member</th><th>Email</th><th>Role</th><th>Today</th><th>Shift</th><th>Leave Type</th><th>Last Login</th></tr></thead>
-              <tbody>
-                {members.map(m=>{
-                  const rec = todayRecs.find(r=>r.userId===m.id);
-                  const shiftInfo = rec?.shift ? SHIFTS.find(s=>s.id===rec.shift) : null;
-                  return (
-                    <tr key={m.id}>
-                      <td>
-                        <div style={{display:'flex',alignItems:'center',gap:9}}>
-                          <div className="avatar" style={{background:getAvatarColor(m.name||'')+'33',color:getAvatarColor(m.name||''),width:30,height:30,fontSize:11,border:`1px solid ${getAvatarColor(m.name||'')}44`}}>{getInitials(m.name||'')}</div>
-                          <span style={{fontWeight:700}}>{m.name||'—'}</span>
-                        </div>
-                      </td>
-                      <td style={{fontSize:12,color:'var(--text2)'}}>{m.email}</td>
-                      <td><span style={{fontSize:11,color:'var(--accent)',fontWeight:700}}>{m.role||'Member'}</span></td>
-                      <td>{rec ? <span className={`badge ${rec.status==='present'?'present':rec.status==='absent'?'absent':'half'}`}>{rec.status==='first_half'?'1st Half':rec.status==='second_half'?'2nd Half':rec.status}</span> : <span style={{color:'var(--text3)',fontSize:12}}>—</span>}</td>
-                      <td>{shiftInfo ? <span className={`shift-tag ${shiftInfo.id}`}>{shiftInfo.icon} {shiftInfo.time}</span> : '—'}</td>
-                      <td>{rec?.leaveType ? <span className={`badge ${(rec.leaveType||'').toLowerCase().replace(' ','')}`}>{rec.leaveType}</span> : '—'}</td>
-                      <td style={{fontSize:12,color:'var(--text2)',fontFamily:'var(--font-mono)'}}>{m.lastLogin ? fmtDate(m.lastLogin) : '—'}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ── Audit Log ──
-function AuditPage() {
-  const [logs, setLogs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  useEffect(()=>{
-    db.collection('auditLog').orderBy('updatedAt','desc').limit(100).get().then(snap=>{
-      setLogs(snap.docs.map(d=>({id:d.id,...d.data()})));
-      setLoading(false);
-    }).catch(()=>setLoading(false));
-  },[]);
-  return (
-    <div className="fade-up card">
-      <div className="card-title">🔍 Audit Log <span style={{fontSize:11,color:'var(--text2)',marginLeft:'auto'}}>Last 100 entries</span></div>
-      {loading ? <div className="text-muted text-sm">Loading…</div> : logs.length===0 ? <div className="text-muted text-sm">No entries yet.</div> : (
-        <div className="table-wrap">
-          <table>
-            <thead><tr><th>Actor</th><th>Action</th><th>Status</th><th>Shift</th><th>Leave</th><th>Date</th><th>Time</th></tr></thead>
-            <tbody>
-              {logs.map((l,i)=>{
-                const shiftInfo = l.shift ? SHIFTS.find(s=>s.id===l.shift) : null;
-                return (
-                  <tr key={i}>
-                    <td style={{fontWeight:700}}>{l.actor||l.userName||'—'}</td>
-                    <td><span style={{fontSize:11,fontWeight:700,color:l.action==='CREATE'?'var(--green)':'var(--yellow)'}}>{l.action||'UPDATE'}</span></td>
-                    <td><span className={`badge ${l.status==='present'?'present':l.status==='absent'?'absent':'half'}`}>{l.status==='first_half'?'1st':l.status==='second_half'?'2nd':l.status}</span></td>
-                    <td>{shiftInfo?<span className={`shift-tag ${shiftInfo.id}`}>{shiftInfo.icon} {shiftInfo.time}</span>:'—'}</td>
-                    <td>{l.leaveType?<span className={`badge ${(l.leaveType||'').toLowerCase().replace(' ','')}`}>{l.leaveType}</span>:'—'}</td>
-                    <td style={{fontSize:12,color:'var(--text2)',fontFamily:'var(--font-mono)'}}>{l.date||'—'}</td>
-                    <td style={{fontSize:12,color:'var(--text2)',fontFamily:'var(--font-mono)'}}>{l.updatedAt?fmtTime(l.updatedAt):'—'}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Manage Team ──
-function ManagePage({ members, toast, onRefresh }) {
-  const [showAdd, setShowAdd] = useState(false);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [role, setRole] = useState('Member');
-  const [tempPass, setTempPass] = useState('');
-  const [adding, setAdding] = useState(false);
-  const [err, setErr] = useState('');
-  const [removing, setRemoving] = useState(null);
-
-  const handleAdd = async (e) => {
-    e.preventDefault(); setErr('');
-    if (!name||!email||!tempPass) { setErr('All fields required.'); return; }
-    if (tempPass.length < 6) { setErr('Temp password min 6 chars.'); return; }
-    setAdding(true);
-    try {
-      const cred = await auth.createUserWithEmailAndPassword(email.trim(), tempPass);
-      await db.collection('users').doc(cred.user.uid).set({ name, email:email.trim(), role, isFirstLogin:true, createdAt:firebase.firestore.FieldValue.serverTimestamp(), lastLogin:null });
-      await auth.signOut();
-      toast(`${name} added to team ✅`);
-      setShowAdd(false); setName(''); setEmail(''); setTempPass(''); setRole('Member');
-      onRefresh();
-    } catch(ex) { setErr(ex.message); } finally { setAdding(false); }
-  };
-
-  const handleRemove = async (m) => {
-    if (!window.confirm(`Remove ${m.name}?`)) return;
-    setRemoving(m.id);
-    try {
-      await db.collection('users').doc(m.id).delete();
-      toast(`${m.name} removed.`);
-      onRefresh();
-    } catch(ex) { toast(ex.message,'error'); } finally { setRemoving(null); }
-  };
-
-  return (
-    <div className="fade-up">
-      <div className="card">
-        <div className="flex-row" style={{marginBottom:20}}>
-          <div className="card-title" style={{margin:0}}>⚙️ Manage Team Members</div>
-          <div className="spacer"/>
-          <button className="btn btn-primary btn-sm" style={{width:'auto'}} onClick={()=>setShowAdd(!showAdd)}>
-            {showAdd ? '✕ Cancel' : '＋ Add Member'}
-          </button>
-        </div>
-        {showAdd && (
-          <form onSubmit={handleAdd} style={{background:'rgba(255,255,255,0.02)',border:'1px solid var(--border2)',borderRadius:14,padding:20,marginBottom:22}}>
-            <div style={{fontWeight:700,marginBottom:14,fontSize:14}}>➕ New Team Member</div>
-            {err && <div className="error-msg">{err}</div>}
-            <div className="grid grid-2" style={{gap:12}}>
-              <div className="form-group" style={{marginBottom:0}}><label className="form-label">Full Name</label><input className="form-input" placeholder="John Smith" value={name} onChange={e=>setName(e.target.value)} required/></div>
-              <div className="form-group" style={{marginBottom:0}}><label className="form-label">Email</label><input className="form-input" type="email" placeholder="john@co.com" value={email} onChange={e=>setEmail(e.target.value)} required/></div>
-              <div className="form-group" style={{marginBottom:0}}><label className="form-label">Role</label><select className="form-input" value={role} onChange={e=>setRole(e.target.value)}><option>Member</option><option>Lead</option><option>Manager</option><option>Admin</option></select></div>
-              <div className="form-group" style={{marginBottom:0}}><label className="form-label">Temp Password</label><input className="form-input" type="password" placeholder="Min 6 chars" value={tempPass} onChange={e=>setTempPass(e.target.value)} required/></div>
-            </div>
-            <button className="btn btn-primary mt-12" type="submit" disabled={adding} style={{width:'auto',padding:'10px 24px'}}>{adding?'Creating…':'Create Account'}</button>
-            <div style={{fontSize:11,color:'var(--text2)',marginTop:8}}>ℹ️ User must change password on first login.</div>
-          </form>
-        )}
-        <div>
-          {members.length === 0 ? <div className="text-muted text-sm">No members yet.</div> : members.map(m=>(
-            <div key={m.id} className="member-row">
-              <div className="avatar" style={{background:getAvatarColor(m.name||'')+'33',color:getAvatarColor(m.name||''),border:`1.5px solid ${getAvatarColor(m.name||'')}44`}}>{getInitials(m.name||'')}</div>
-              <div style={{flex:1,minWidth:0}}>
-                <div className="member-name-text">{m.name||'—'}</div>
-                <div className="member-email-text">{m.email}</div>
-              </div>
-              <span style={{fontSize:11,color:'var(--accent)',fontWeight:700}}>{m.role||'Member'}</span>
-              {m.isFirstLogin && <span style={{fontSize:10,background:'rgba(255,170,0,0.08)',color:'var(--yellow)',padding:'2px 8px',borderRadius:99,border:'1px solid rgba(255,170,0,0.2)',fontWeight:700}}>FIRST LOGIN</span>}
-              <button className="btn btn-danger btn-sm" onClick={()=>handleRemove(m)} disabled={removing===m.id}>{removing===m.id?'…':'✕'}</button>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Export Page ──
-function ExportPage({ allRecords, members, toast }) {
-  const [loading, setLoading] = useState('');
-
-  const buildCSV = (records) => {
-    const header = ['Date','Member Name','Email','Status','Shift','Shift Time','Leave Type','Leave ID','Updated At'];
-    const rows = records.map(r => {
-      const shiftInfo = r.shift ? SHIFTS.find(s=>s.id===r.shift) : null;
-      return [r.date||'',r.userName||'',r.userEmail||'',r.status||'',shiftInfo?.name||'',shiftInfo?.time||'',r.leaveType||'',r.leaveId||'',r.updatedAt?(r.updatedAt.toDate?r.updatedAt.toDate().toISOString():r.updatedAt):''];
-    });
-    return [header,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-  };
-
-  const download = (csv, filename) => {
-    const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href=url; a.download=filename; a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const today = todayStr();
-  const now = new Date();
-  const prefix = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-
-  const exports = [
-    {key:'daily',label:'Daily Report',sub:`Today — ${today}`,icon:'📋',fn:async()=>{download(buildCSV(allRecords.filter(r=>r.date===today)),`attendance_daily_${today}.csv`);toast('Daily downloaded ✅');}},
-    {key:'weekly',label:'Weekly Report',sub:'This week',icon:'📆',fn:async()=>{
-      const day=now.getDay(),mon=new Date(now);mon.setDate(now.getDate()-(day===0?6:day-1));mon.setHours(0,0,0,0);
-      download(buildCSV(allRecords.filter(r=>new Date(r.date)>=mon)),`attendance_weekly_${dateKey(mon)}.csv`);toast('Weekly downloaded ✅');
-    }},
-    {key:'monthly',label:'Monthly Report',sub:now.toLocaleDateString('en-IN',{month:'long',year:'numeric'}),icon:'🗓️',fn:async()=>{download(buildCSV(allRecords.filter(r=>r.date&&r.date.startsWith(prefix))),`attendance_monthly_${prefix}.csv`);toast('Monthly downloaded ✅');}},
-    {key:'full',label:'Full Export',sub:'All records all time',icon:'📦',fn:async()=>{download(buildCSV(allRecords),`attendance_full_${today}.csv`);toast('Full export downloaded ✅');}},
-  ];
-
-  return (
-    <div className="fade-up">
-      <div className="grid grid-4 section-gap">
-        {[
-          {icon:'📊',label:'Total Records',value:allRecords.length,sub:'All time'},
-          {icon:'📅',label:'Today',value:allRecords.filter(r=>r.date===today).length,sub:'Marks today'},
-          {icon:'📆',label:'This Month',value:allRecords.filter(r=>r.date&&r.date.startsWith(prefix)).length,sub:'This month'},
-          {icon:'👥',label:'Team Size',value:members.length,sub:'Active'},
-        ].map((s,i)=>(
-          <div key={i} className={`stat-card ${i===0?'blue':i===1?'green':i===2?'yellow':'red'} fade-up`} style={{animationDelay:`${i*0.07}s`}}>
-            <div className="stat-icon-wrap">{s.icon}</div>
-            <div className="stat-label">{s.label}</div>
-            <div className="stat-value">{s.value}</div>
-            <div className="stat-sub">{s.sub}</div>
-          </div>
+      <div className="calendar-grid">
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+          <div key={d} className="cal-day-label">{d}</div>
         ))}
-      </div>
-      <div className="card">
-        <div className="card-title">📤 Export Reports</div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))',gap:14}}>
-          {exports.map(btn=>(
-            <div key={btn.key} style={{background:'rgba(255,255,255,0.02)',border:'1px solid var(--border)',borderRadius:14,padding:'20px'}}>
-              <div style={{fontSize:30,marginBottom:11}}>{btn.icon}</div>
-              <div style={{fontFamily:'var(--font-head)',fontWeight:800,fontSize:15,marginBottom:4,letterSpacing:'-0.2px'}}>{btn.label}</div>
-              <div style={{fontSize:12,color:'var(--text2)',marginBottom:16}}>{btn.sub}</div>
-              <button className="btn btn-secondary btn-sm" style={{width:'100%'}} onClick={async()=>{setLoading(btn.key);await btn.fn();setLoading('');}} disabled={loading===btn.key}>
-                {loading===btn.key?'⬇️ Preparing…':'⬇️ Download CSV'}
-              </button>
+        {Array(firstDay).fill(0).map((_, i) => <div key={`empty-${i}`} />)}
+        {Array.from({ length: daysInMonth }, (_, i) => {
+          const day = i + 1;
+          const dKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          const rec = myRecords.find(r => r.date === dKey);
+          return (
+            <div key={day} className={`cal-day ${rec ? rec.status : ''} ${dKey === new Date().toISOString().split('T')[0] ? 'today' : ''}`}>
+              {day}
+              {rec && <div className={`cal-dot ${rec.status === 'present' ? 'green' : 'red'}`} />}
             </div>
-          ))}
-        </div>
-        <div style={{marginTop:18,fontSize:12,color:'var(--text2)',background:'rgba(255,255,255,0.02)',padding:'12px 14px',borderRadius:var(--radius-sm),border:'1px solid var(--border)'}}>
-          ℹ️ CSV includes: Date, Name, Email, Status, Shift, Shift Time, Leave Type, Leave ID, Timestamp.
-        </div>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-// ── MAIN APP ──
+// ── Main App Component ──
 function App() {
-  const [authState, setAuthState] = useState('loading');
-  const [fireUser, setFireUser] = useState(null);
+  const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
-  const [page, setPage] = useState('dashboard');
+  const [view, setView] = useState('dashboard');
   const [members, setMembers] = useState([]);
   const [allRecords, setAllRecords] = useState([]);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { toasts, add: addToast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const { toasts, add } = useToast();
 
   useEffect(() => {
     const unsub = auth.onAuthStateChanged(async (u) => {
       if (u) {
         const snap = await db.collection('users').doc(u.uid).get();
-        if (snap.exists) {
-          const data = snap.data();
-          setFireUser(u); setUserData(data);
-          setAuthState(data.isFirstLogin ? 'first-login' : 'app');
-        } else { await auth.signOut(); setAuthState('auth'); }
-      } else { setFireUser(null); setUserData(null); setAuthState('auth'); }
+        setUser(u);
+        setUserData(snap.data());
+        
+        db.collection('attendance').onSnapshot(s => {
+          setAllRecords(s.docs.map(d => d.data()));
+        });
+        db.collection('users').onSnapshot(s => {
+          setMembers(s.docs.map(d => ({ id: d.id, ...d.data() })));
+        });
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
     });
     return unsub;
   }, []);
 
-  const loadMembers = useCallback(() => {
-    db.collection('users').get().then(snap => setMembers(snap.docs.map(d=>({id:d.id,...d.data()}))));
-  }, []);
-
-  useEffect(() => {
-    if (authState !== 'app') return;
-    loadMembers();
-    const unsub = db.collection('attendance').orderBy('date','desc').onSnapshot(snap => {
-      setAllRecords(snap.docs.map(d=>({id:d.id,...d.data()})));
-    });
-    return unsub;
-  }, [authState, loadMembers]);
-
-  const pageTitles = { dashboard:'Dashboard', attendance:'My Attendance', calendar:'Calendar View', team:'Team Overview', audit:'Audit Log', manage:'Manage Team', export:'Export Reports' };
-
-  if (authState === 'loading') return (
-    <div className="loader-wrap">
-      <div className="loader-ring"></div>
-      <div className="loader-logo">SST Windows</div>
-      <div style={{color:'var(--text3)',fontSize:12,letterSpacing:'1.5px',textTransform:'uppercase'}}>Loading Dashboard…</div>
-    </div>
-  );
-  if (authState === 'auth') return <AuthScreen onLogin={(u,d)=>{setFireUser(u);setUserData(d);setAuthState(d.isFirstLogin?'first-login':'app');}} />;
-  if (authState === 'first-login') return <ChangePasswordScreen user={fireUser} onDone={()=>setAuthState('app')} toast={addToast} />;
-
-  const isAdmin = userData?.role === 'Admin' || userData?.role === 'Manager';
+  if (loading) return <div className="loader-wrap"><div className="loader-ring"></div><div className="loader-logo">SST Windows</div></div>;
+  if (!user) return <AuthScreen onLogin={(u, d) => { setUser(u); setUserData(d); }} />;
+  if (userData?.isFirstLogin) return <ChangePasswordScreen user={user} toast={add} onDone={() => setUserData({ ...userData, isFirstLogin: false })} />;
 
   return (
     <div className="app-shell">
-      <div className={`sidebar-overlay ${sidebarOpen?'show':''}`} onClick={()=>setSidebarOpen(false)}/>
-
-      <aside className={`sidebar ${sidebarOpen?'open':''}`}>
+      <div className="sidebar">
         <div className="sidebar-header">
           <div className="sidebar-brand">
             <div className="sidebar-icon">🪟</div>
@@ -2001,72 +1673,58 @@ function App() {
         </div>
         <div className="sidebar-user">
           <div className="sidebar-user-card">
-            <div className="sidebar-uname">{userData?.name || fireUser?.email}</div>
-            <div className="sidebar-uemail">{fireUser?.email}</div>
-            <div className="sidebar-badge">{userData?.role || 'Member'}</div>
+            <div className="sidebar-uname">{userData?.name || 'User'}</div>
+            <div className="sidebar-uemail">{user.email}</div>
+            <div className="sidebar-badge">SUPPORT ANALYST</div>
           </div>
         </div>
         <nav className="sidebar-nav">
-          {['main','manage'].map(section => {
-            const items = NAV.filter(n=>n.section===section && (section==='main'||isAdmin));
-            if (!items.length) return null;
-            return (
-              <div key={section}>
-                <div className="nav-section">{section==='main'?'Main':'Management'}</div>
-                {items.map(n=>(
-                  <div key={n.id} className={`nav-item ${page===n.id?'active':''}`} onClick={()=>{setPage(n.id);setSidebarOpen(false);}}>
-                    <span className="nav-icon">{n.icon}</span>{n.label}
-                  </div>
-                ))}
-              </div>
-            );
-          })}
+          <div className="nav-section">Main Menu</div>
+          {NAV.filter(n => n.section === 'main').map(n => (
+            <div key={n.id} className={`nav-item ${view === n.id ? 'active' : ''}`} onClick={() => setView(n.id)}>
+              <span className="nav-icon">{n.icon}</span> {n.label}
+            </div>
+          ))}
+          <div className="nav-section">Management</div>
+          {NAV.filter(n => n.section === 'manage').map(n => (
+            <div key={n.id} className={`nav-item ${view === n.id ? 'active' : ''}`} onClick={() => setView(n.id)}>
+              <span className="nav-icon">{n.icon}</span> {n.label}
+            </div>
+          ))}
         </nav>
         <div className="sidebar-footer">
-          <button className="btn btn-ghost" style={{width:'100%',justifyContent:'flex-start'}} onClick={()=>auth.signOut()}>
-            🚪 Sign Out
-          </button>
+          <button className="btn btn-ghost" style={{ width: '100%' }} onClick={() => auth.signOut()}>🚪 Sign Out</button>
         </div>
-      </aside>
+      </div>
 
       <main className="main-content">
-        <div className="topbar">
+        <header className="topbar">
           <div className="topbar-left">
-            <div className="hamburger" onClick={()=>setSidebarOpen(!sidebarOpen)}>
-              <span/><span/><span/>
-            </div>
-            <div className="topbar-title">{pageTitles[page]||''}</div>
+            <div className="topbar-title">{NAV.find(n => n.id === view)?.label}</div>
           </div>
           <div className="topbar-right">
-            <div className="live-indicator">
-              <div className="live-dot"></div>
-              <div className="live-text">LIVE</div>
-            </div>
-            <div className="topbar-date">{new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</div>
-            <div className="topbar-avatar" style={{background:getAvatarColor(userData?.name||'')+'33',color:getAvatarColor(userData?.name||'')}}>
-              {getInitials(userData?.name||'')}
+            <div className="topbar-date">{new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}</div>
+            <div className="topbar-avatar" style={{ background: getAvatarColor(userData?.name) + '33', color: getAvatarColor(userData?.name) }}>
+              {getInitials(userData?.name)}
             </div>
           </div>
-        </div>
+        </header>
 
         <div className="page-content">
-          {page==='dashboard' && <DashboardPage allRecords={allRecords} members={members}/>}
-          {page==='attendance' && <AttendancePage user={fireUser} userData={userData} toast={addToast}/>}
-          {page==='calendar' && <CalendarPage allRecords={allRecords} members={members}/>}
-          {page==='team' && <TeamPage allRecords={allRecords} members={members}/>}
-          {page==='audit' && <AuditPage/>}
-          {page==='manage' && <ManagePage members={members} toast={addToast} onRefresh={loadMembers}/>}
-          {page==='export' && <ExportPage allRecords={allRecords} members={members} toast={addToast}/>}
+          {view === 'dashboard' && <DashboardPage allRecords={allRecords} members={members} />}
+          {view === 'attendance' && <AttendancePage user={user} userData={userData} toast={add} />}
+          {view === 'calendar' && <CalendarPage allRecords={allRecords} user={user} />}
         </div>
       </main>
-
-      <Toast toasts={toasts}/>
+      <Toast toasts={toasts} />
     </div>
   );
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App/>);
+root.render(<App />);
 </script>
+</body>
+</html>
 </body>
 </html>
