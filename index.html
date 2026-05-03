@@ -62,7 +62,6 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* subtle grid bg */
     body::before {
       content: '';
       position: fixed;
@@ -92,7 +91,6 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 
-    /* ── Animations ── */
     @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
     @keyframes slideUp { from { opacity:0; transform:translateY(24px) scale(0.97); } to { opacity:1; transform:none; } }
     @keyframes slideIn { from { opacity:0; transform:translateX(-14px); } to { opacity:1; transform:none; } }
@@ -105,7 +103,6 @@
     .fade-in { animation: fadeIn 0.38s cubic-bezier(.16,1,.3,1) both; }
     .slide-in { animation: slideIn 0.3s cubic-bezier(.16,1,.3,1) both; }
 
-    /* ── Loader ── */
     .loader-wrap {
       display:flex; align-items:center; justify-content:center;
       min-height:100vh; flex-direction:column; gap:20px;
@@ -116,7 +113,6 @@
       animation: spin 0.8s linear infinite;
     }
 
-    /* ── Auth ── */
     .auth-wrap {
       min-height:100vh; display:flex; align-items:center; justify-content:center;
       background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(79,142,247,0.1) 0%, transparent 70%), var(--bg);
@@ -179,7 +175,6 @@
     .error-msg { background:rgba(240,82,82,0.08); border:1px solid rgba(240,82,82,0.25); color:#fca5a5; padding:11px 14px; border-radius:var(--radius-sm); font-size:13px; margin-bottom:16px; }
     .success-msg { background:rgba(16,217,160,0.08); border:1px solid rgba(16,217,160,0.25); color:#5ef5d4; padding:11px 14px; border-radius:var(--radius-sm); font-size:13px; margin-bottom:16px; }
 
-    /* ── App Shell ── */
     .app-shell { display:flex; min-height:100vh; }
     .sidebar {
       width:248px; min-height:100vh; background:var(--surface);
@@ -236,7 +231,6 @@
     .topbar-right { display:flex; align-items:center; gap:12px; }
     .page-content { padding:28px; max-width:1440px; }
 
-    /* ── Cards ── */
     .card {
       background:var(--surface); border:1px solid var(--border);
       border-radius:var(--radius); padding:22px; box-shadow:var(--shadow);
@@ -253,7 +247,6 @@
     .grid-4 { grid-template-columns: repeat(4,1fr); }
     .grid-auto { grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); }
 
-    /* ── Stat Cards ── */
     .stat-card {
       background:var(--surface); border:1px solid var(--border);
       border-radius:var(--radius); padding:20px 22px;
@@ -271,7 +264,6 @@
     .stat-sub { font-size:12px; color:var(--text2); margin-top:6px; font-weight:500; }
     .stat-icon { position:absolute; top:18px; right:18px; font-size:24px; opacity:0.2; }
 
-    /* ── Attendance Buttons ── */
     .att-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
     .att-btn {
       padding:18px 14px; border-radius:var(--radius); border:1.5px solid var(--border2);
@@ -330,7 +322,6 @@
     .shift-card-desc { font-size:11px; color:var(--text2); margin-top:4px; font-weight:500; }
     .shift-modal-actions { display:flex; gap:10px; }
 
-    /* ── SHIFT DISPLAY TAG (after selection) ── */
     .shift-selected-banner {
       display:flex; align-items:center; gap:12px; padding:13px 15px;
       border-radius:var(--radius-sm); margin-bottom:14px;
@@ -341,7 +332,6 @@
     .shift-selected-name { font-size:13px; font-weight:800; letter-spacing:-0.2px; }
     .shift-selected-time { font-size:11px; font-family:var(--font-mono); font-weight:600; margin-top:2px; letter-spacing:0.3px; }
 
-    /* ── SHIFT DASHBOARD PANEL ── */
     .shift-dist-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:22px; }
     .shift-dist-header { font-family:var(--font-head); font-size:15px; font-weight:800; margin-bottom:16px; display:flex; align-items:center; gap:8px; letter-spacing:-0.2px; }
     .shift-summary-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:18px; }
@@ -365,7 +355,6 @@
     }
     .shift-name-chip .chip-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
 
-    /* ── CHECKLIST ── */
     .checklist-section { margin-top:14px; }
     .checklist-label { font-size:11px; font-weight:800; color:var(--text3); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
     .checklist-label .label-count { margin-left:auto; font-size:11px; font-weight:700; }
@@ -403,11 +392,9 @@
     }
     .check-item.checked .check-badge { background:rgba(16,217,160,0.1); color:var(--green2); border-color:rgba(16,217,160,0.25); }
 
-    /* progress bar */
     .checklist-progress { height:3px; background:var(--border2); border-radius:99px; overflow:hidden; margin-bottom:12px; }
     .checklist-progress-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--green),var(--green2)); transition:width 0.5s cubic-bezier(.4,0,.2,1); }
 
-    /* ── Leave Panel ── */
     .leave-panel {
       background:var(--surface2); border:1px solid var(--border2); border-radius:var(--radius);
       padding:18px; margin-top:4px; animation:fadeIn 0.25s ease;
@@ -421,7 +408,6 @@
     .leave-type-btn:hover { border-color:var(--accent); color:var(--text); }
     .leave-type-btn.selected { border-color:var(--accent); background:var(--accent-dim); color:var(--accent2); }
 
-    /* ── Calendar ── */
     .calendar-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
     .calendar-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
     .cal-day-label { text-align:center; font-size:10px; font-weight:800; color:var(--text3); padding:4px; letter-spacing:0.8px; text-transform:uppercase; }
@@ -440,7 +426,6 @@
     .cal-dot.red { background:var(--red); }
     .cal-dot.yellow { background:var(--yellow); }
 
-    /* ── Table ── */
     .table-wrap { overflow-x:auto; border-radius:var(--radius-sm); border:1px solid var(--border); }
     table { width:100%; border-collapse:collapse; font-size:13px; }
     thead th { background:var(--surface2); padding:11px 14px; text-align:left; font-size:10px; font-weight:800; color:var(--text2); letter-spacing:0.8px; text-transform:uppercase; border-bottom:1px solid var(--border); white-space:nowrap; }
@@ -459,7 +444,6 @@
     .badge.earned { background:rgba(251,146,60,0.1); color:#fb923c; border:1px solid rgba(251,146,60,0.22); }
     .badge.comp { background:rgba(34,211,238,0.1); color:#67e8f9; border:1px solid rgba(34,211,238,0.22); }
 
-    /* ── Toast ── */
     .toast-wrap { position:fixed; bottom:24px; right:24px; z-index:999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
     .toast {
       background:var(--surface2); border:1px solid var(--border2); border-radius:var(--radius);
@@ -471,7 +455,6 @@
     .toast.success { border-color:rgba(16,217,160,0.35); }
     .toast.error { border-color:rgba(240,82,82,0.35); }
 
-    /* ── Modal ── */
     .modal-backdrop {
       position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:200;
       display:flex; align-items:center; justify-content:center; padding:16px;
@@ -485,7 +468,6 @@
     .modal-title { font-family:var(--font-head); font-size:18px; font-weight:800; margin-bottom:6px; }
     .modal-sub { color:var(--text2); font-size:13px; margin-bottom:22px; }
 
-    /* ── Members ── */
     .member-row {
       display:flex; align-items:center; gap:12px; padding:12px 14px;
       border:1px solid var(--border2); border-radius:var(--radius-sm);
@@ -500,14 +482,12 @@
     .member-name { font-weight:700; font-size:13px; letter-spacing:-0.2px; }
     .member-email { font-size:11px; color:var(--text2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
-    /* ── Live indicator ── */
     .live-dot {
       width:7px; height:7px; background:var(--green); border-radius:50%;
       animation: pulse 2.5s infinite; display:inline-block; margin-right:6px;
       box-shadow: 0 0 6px var(--green);
     }
 
-    /* ── Mobile ── */
     .hamburger { display:none; cursor:pointer; flex-direction:column; gap:5px; padding:6px; }
     .hamburger span { display:block; width:22px; height:2px; background:var(--text2); border-radius:2px; }
     .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:99; }
@@ -547,7 +527,6 @@
 <script type="text/babel">
 const { useState, useEffect, useRef, useCallback } = React;
 
-/* ═══════════ FIREBASE ═══════════ */
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyAKV7ShVU8o-FS4G08pzIEACeR_YOiB51Y",
   authDomain: "woolies-pulse.firebaseapp.com",
@@ -561,7 +540,6 @@ firebase.initializeApp(FIREBASE_CONFIG);
 const auth = firebase.auth();
 const db   = firebase.firestore();
 
-/* ═══════════ HELPERS ═══════════ */
 const avatarColors = ['#4f8ef7','#10d9a0','#f5b014','#f05252','#a78bfa','#fb923c','#22d3ee','#ec4899'];
 const getAvatarColor = n => avatarColors[(n||'').charCodeAt(0) % avatarColors.length];
 const getInitials    = n => (n||'').split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2)||'??';
@@ -572,7 +550,6 @@ const dateKey  = d  => { const x=new Date(d); return `${x.getFullYear()}-${Strin
 const getDaysInMonth   = (y,m) => new Date(y,m+1,0).getDate();
 const getFirstDayOfMonth = (y,m) => new Date(y,m,1).getDay();
 
-/* ═══════════ CONSTANTS ═══════════ */
 const SHIFTS = [
   { id:'morning',  icon:'🌅', name:'Morning Shift',  time:'06:00 AM – 03:00 PM', short:'06:00–15:00', color:'#f5b014', bg:'rgba(245,176,20,0.12)',  border:'rgba(245,176,20,0.35)' },
   { id:'general',  icon:'☀️', name:'General Shift',  time:'08:00 AM – 05:00 PM', short:'08:00–17:00', color:'#10d9a0', bg:'rgba(16,217,160,0.12)', border:'rgba(16,217,160,0.35)' },
@@ -600,7 +577,6 @@ const NAV = [
   { id:'export',     label:'Export Reports',icon:'📤', section:'manage' },
 ];
 
-/* ═══════════ TOAST ═══════════ */
 function Toast({ toasts }) {
   return (
     <div className="toast-wrap">
@@ -623,14 +599,19 @@ function useToast() {
   return { toasts, add };
 }
 
-/* ═══════════ SHIFT MODAL ═══════════ */
-function ShiftModal({ onConfirm, onClose }) {
+/* ═══════════ SHIFT MODAL — now accepts a context label ═══════════ */
+function ShiftModal({ onConfirm, onClose, contextLabel }) {
   const [sel, setSel] = useState('');
   return (
     <div className="shift-modal-backdrop" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="shift-modal">
         <div className="shift-modal-title">🕐 Select Your Shift</div>
-        <div className="shift-modal-sub">Choose the shift you're working today — this helps the team track coverage accurately.</div>
+        <div className="shift-modal-sub">
+          {contextLabel
+            ? `You selected <strong>${contextLabel}</strong>. Choose the shift you're working so the team tracks coverage accurately.`
+            : "Choose the shift you're working today — this helps the team track coverage accurately."
+          }
+        </div>
         <div className="shift-cards-grid">
           {SHIFTS.map(sh => {
             const picked = sel === sh.id;
@@ -655,7 +636,7 @@ function ShiftModal({ onConfirm, onClose }) {
         <div className="shift-modal-actions">
           <button className="btn btn-ghost" style={{flex:1}} onClick={onClose}>Cancel</button>
           <button className="btn btn-primary" style={{flex:2}} disabled={!sel} onClick={() => onConfirm(sel)}>
-            ✓ Confirm Shift &amp; Mark Present
+            ✓ Confirm Shift &amp; Continue
           </button>
         </div>
       </div>
@@ -663,7 +644,6 @@ function ShiftModal({ onConfirm, onClose }) {
   );
 }
 
-/* ═══════════ TCS + CATS CHECKLIST ═══════════ */
 function TCSChecklist({ userId, today, toast }) {
   const storKey = `tcs_${userId}_${today}`;
   const [checked, setChecked] = useState(() => {
@@ -708,7 +688,6 @@ function TCSChecklist({ userId, today, toast }) {
   );
 }
 
-/* ═══════════ SHIFT DASHBOARD PANEL ═══════════ */
 function ShiftDashPanel({ allRecords, members }) {
   const today  = todayStr();
   const todayR = allRecords.filter(r => r.date === today && r.status === 'present' && r.shift);
@@ -757,7 +736,6 @@ function ShiftDashPanel({ allRecords, members }) {
   );
 }
 
-/* ═══════════ AUTH SCREEN ═══════════ */
 function AuthScreen({ onLogin }) {
   const [email, setEmail] = useState('');
   const [pass,  setPass]  = useState('');
@@ -811,7 +789,6 @@ function AuthScreen({ onLogin }) {
   );
 }
 
-/* ═══════════ CHANGE PASSWORD ═══════════ */
 function ChangePasswordScreen({ user, onDone, toast }) {
   const [newPass, setNewPass] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -852,7 +829,6 @@ function ChangePasswordScreen({ user, onDone, toast }) {
   );
 }
 
-/* ═══════════ DASHBOARD PAGE ═══════════ */
 function DashboardPage({ allRecords, members }) {
   const today    = todayStr();
   const todayRecs = allRecords.filter(r => r.date === today);
@@ -869,7 +845,6 @@ function DashboardPage({ allRecords, members }) {
 
   return (
     <div className="fade-in">
-      {/* HERO STATS */}
       <div className="grid grid-4 section-gap">
         {[
           { cls:'blue',   icon:'👥', label:'Total Members', value:total,         sub:'Active team members' },
@@ -886,13 +861,11 @@ function DashboardPage({ allRecords, members }) {
         ))}
       </div>
 
-      {/* ── NEW: SHIFT DISTRIBUTION PANEL ── */}
       <div className="section-gap">
         <ShiftDashPanel allRecords={allRecords} members={members}/>
       </div>
 
       <div className="grid grid-2 section-gap">
-        {/* TODAY'S OVERVIEW */}
         <div className="card">
           <div className="card-title">
             🗓️ Today's Overview
@@ -928,7 +901,6 @@ function DashboardPage({ allRecords, members }) {
         </div>
 
         <div>
-          {/* LEAVE BREAKDOWN */}
           <div className="card section-gap" style={{marginBottom:16}}>
             <div className="card-title">🏖️ Leave Breakdown Today</div>
             <div className="grid grid-2">
@@ -941,7 +913,6 @@ function DashboardPage({ allRecords, members }) {
             </div>
           </div>
 
-          {/* RECENT ACTIVITY */}
           <div className="card">
             <div className="card-title">🕒 Recent Activity</div>
             {recentActivity.length === 0 ? <div className="text-muted text-sm">No activity yet.</div> : recentActivity.map((r,i) => {
@@ -964,7 +935,7 @@ function DashboardPage({ allRecords, members }) {
   );
 }
 
-/* ═══════════ ATTENDANCE PAGE ═══════════ */
+/* ═══════════ ATTENDANCE PAGE — KEY CHANGE HERE ═══════════ */
 function AttendancePage({ user, userData, toast }) {
   const today   = todayStr();
   const [status,    setStatus]    = useState('');
@@ -976,6 +947,8 @@ function AttendancePage({ user, userData, toast }) {
   const [loading,   setLoading]   = useState(true);
   const [history,   setHistory]   = useState([]);
   const [showShiftModal, setShowShiftModal] = useState(false);
+  // Track which status triggered the shift modal so we can apply it after confirmation
+  const [pendingStatus, setPendingStatus] = useState('');
 
   useEffect(() => {
     const recId = `${user.uid}_${today}`;
@@ -992,24 +965,33 @@ function AttendancePage({ user, userData, toast }) {
     });
   }, [user.uid]);
 
-  /* When user clicks Present → show shift modal */
+  // All three "present" statuses now trigger the shift modal
   const handleStatusClick = id => {
-    if (id === 'present') {
+    if (id === 'present' || id === 'first_half' || id === 'second_half') {
+      setPendingStatus(id);
       setShowShiftModal(true);
     } else {
+      // absent — clear shift, set status directly
       setStatus(id);
       setShift('');
-      if (id !== 'absent') { setLeaveType(''); setLeaveId(''); }
     }
   };
 
   const handleShiftConfirm = shiftId => {
-    setStatus('present');
+    setStatus(pendingStatus);
     setShift(shiftId);
     setLeaveType(''); setLeaveId('');
     setShowShiftModal(false);
     const sh = SHIFTS.find(s => s.id === shiftId);
-    toast(`${sh.icon} ${sh.name} selected!`);
+    const statusLabel = pendingStatus === 'present' ? 'Present' : pendingStatus === 'first_half' ? 'First Half' : 'Second Half';
+    toast(`${sh.icon} ${sh.name} · ${statusLabel} selected!`);
+    setPendingStatus('');
+  };
+
+  const handleShiftModalClose = () => {
+    setShowShiftModal(false);
+    setPendingStatus('');
+    // Don't change status if user cancels
   };
 
   const handleSave = async () => {
@@ -1020,7 +1002,7 @@ function AttendancePage({ user, userData, toast }) {
     const data = {
       userId: user.uid, userName: userData.name||user.email, userEmail: user.email,
       date: today, status,
-      shift:     status === 'present' ? shift : '',
+      shift:     (status === 'present' || status === 'first_half' || status === 'second_half') ? shift : '',
       leaveType: status === 'absent'  ? leaveType : '',
       leaveId:   status === 'absent'  ? leaveId   : '',
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -1031,21 +1013,31 @@ function AttendancePage({ user, userData, toast }) {
       await db.collection('auditLog').add({ ...data, action: existing?'UPDATE':'CREATE', actor: userData.name||user.email });
       setExisting(data);
       const sh = shift ? SHIFTS.find(s=>s.id===shift) : null;
-      toast(existing ? 'Attendance updated ✅' : `Marked present${sh?` · ${sh.name}`:''} ✅`);
+      const statusLabel = status === 'present' ? 'Present' : status === 'first_half' ? 'First Half' : status === 'second_half' ? 'Second Half' : 'Absent';
+      toast(existing ? 'Attendance updated ✅' : `Marked ${statusLabel}${sh?` · ${sh.name}`:''} ✅`);
       setHistory(h => [data, ...h.filter(r=>r.date!==today)]);
     } catch(ex) { toast(ex.message,'error'); } finally { setSaving(false); }
   };
 
   const selectedShift = shift ? SHIFTS.find(s => s.id === shift) : null;
+
+  // Context label for the shift modal subtitle
+  const pendingStatusLabel = pendingStatus === 'present' ? 'Present (Full Day)' : pendingStatus === 'first_half' ? 'First Half' : pendingStatus === 'second_half' ? 'Second Half' : '';
+
   if (loading) return <div style={{textAlign:'center',padding:40,color:'var(--text2)'}}>Loading…</div>;
 
   return (
     <div className="fade-in">
-      {showShiftModal && <ShiftModal onConfirm={handleShiftConfirm} onClose={() => setShowShiftModal(false)}/>}
+      {showShiftModal && (
+        <ShiftModal
+          onConfirm={handleShiftConfirm}
+          onClose={handleShiftModalClose}
+          contextLabel={pendingStatusLabel}
+        />
+      )}
 
       <div className="grid grid-2">
         <div>
-          {/* MARK ATTENDANCE */}
           <div className="card" style={{marginBottom:16}}>
             <div className="card-title">
               📋 Mark Attendance
@@ -1063,27 +1055,27 @@ function AttendancePage({ user, userData, toast }) {
                   <span className="att-btn-icon">{opt.icon}</span>
                   <div className="att-btn-label">{opt.label}</div>
                   <div className="att-btn-sub">{opt.sub}</div>
-                  {opt.id==='present' && status==='present' && selectedShift && (
+                  {(opt.id==='present'||opt.id==='first_half'||opt.id==='second_half') && status===opt.id && selectedShift && (
                     <div style={{marginTop:5,fontSize:10,fontFamily:'var(--font-mono)',fontWeight:600,color:selectedShift.color}}>{selectedShift.short}</div>
                   )}
                 </div>
               ))}
             </div>
 
-            {/* Shift banner after selection */}
-            {status === 'present' && selectedShift && (
+            {/* Shift banner — shown for present / first_half / second_half */}
+            {(status === 'present' || status === 'first_half' || status === 'second_half') && selectedShift && (
               <div className="shift-selected-banner" style={{background:selectedShift.bg, border:`1px solid ${selectedShift.border}`}}>
                 <span className="shift-selected-icon">{selectedShift.icon}</span>
                 <div className="shift-selected-info">
                   <div className="shift-selected-name" style={{color:selectedShift.color}}>{selectedShift.name}</div>
                   <div className="shift-selected-time" style={{color:selectedShift.color,opacity:0.8}}>{selectedShift.time}</div>
                 </div>
-                <button className="btn btn-ghost btn-sm" style={{fontSize:11}} onClick={() => setShowShiftModal(true)}>Change</button>
+                <button className="btn btn-ghost btn-sm" style={{fontSize:11}} onClick={() => { setPendingStatus(status); setShowShiftModal(true); }}>Change</button>
               </div>
             )}
-            {status === 'present' && !selectedShift && (
+            {(status === 'present' || status === 'first_half' || status === 'second_half') && !selectedShift && (
               <div style={{padding:'10px 13px',background:'rgba(245,176,20,0.07)',border:'1px solid rgba(245,176,20,0.2)',borderRadius:'var(--radius-sm)',marginBottom:12,fontSize:12,color:'var(--yellow2)',fontWeight:600}}>
-                ⚠️ Click <b>Present</b> again to select your shift
+                ⚠️ Click your attendance type again to select your shift
               </div>
             )}
 
@@ -1108,14 +1100,12 @@ function AttendancePage({ user, userData, toast }) {
             </button>
           </div>
 
-          {/* ── NEW: TCS + CATS CHECKLIST ── */}
           <div className="card">
             <div className="card-title">✅ Daily Compliance</div>
             <TCSChecklist userId={user.uid} today={today} toast={toast}/>
           </div>
         </div>
 
-        {/* HISTORY */}
         <div className="card">
           <div className="card-title">📆 My Attendance History</div>
           {history.length === 0 ? <div className="text-muted text-sm">No records yet.</div> : (
@@ -1150,7 +1140,6 @@ function AttendancePage({ user, userData, toast }) {
   );
 }
 
-/* ═══════════ CALENDAR PAGE ═══════════ */
 function CalendarPage({ allRecords, members }) {
   const now = new Date();
   const [year, setYear]   = useState(now.getFullYear());
@@ -1257,7 +1246,6 @@ function CalendarPage({ allRecords, members }) {
   );
 }
 
-/* ═══════════ TEAM PAGE ═══════════ */
 function TeamPage({ allRecords, members }) {
   const today    = todayStr();
   const todayRecs = allRecords.filter(r=>r.date===today);
@@ -1292,7 +1280,6 @@ function TeamPage({ allRecords, members }) {
   );
 }
 
-/* ═══════════ AUDIT PAGE ═══════════ */
 function AuditPage() {
   const [logs,setLogs]=useState([]);
   const [loading,setLoading]=useState(true);
@@ -1331,7 +1318,6 @@ function AuditPage() {
   );
 }
 
-/* ═══════════ MANAGE PAGE ═══════════ */
 function ManagePage({ members, toast, onRefresh }) {
   const [showAdd,setShowAdd]=useState(false);
   const [name,setName]=useState(''); const [email,setEmail]=useState('');
@@ -1395,7 +1381,6 @@ function ManagePage({ members, toast, onRefresh }) {
   );
 }
 
-/* ═══════════ EXPORT PAGE ═══════════ */
 function ExportPage({ allRecords, members, toast }) {
   const [loading, setLoading] = useState('');
   const buildCSV = recs => {
@@ -1449,7 +1434,6 @@ function ExportPage({ allRecords, members, toast }) {
   );
 }
 
-/* ═══════════ MAIN APP ═══════════ */
 function App() {
   const [authState,   setAuthState]   = useState('loading');
   const [fireUser,    setFireUser]    = useState(null);
