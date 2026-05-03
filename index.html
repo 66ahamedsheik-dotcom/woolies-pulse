@@ -690,21 +690,37 @@ function TCSChecklist({ userId, today, toast }) {
 
 function ShiftDashPanel({ allRecords, members }) {
   const today  = todayStr();
-  const todayR = allRecords.filter(r => r.date === today && r.status === 'present' && r.shift);
+  // ✅ FIX: include present, first_half, second_half — all count as on shift
+  const todayR = allRecords.filter(r =>
+    r.date === today &&
+    (r.status === 'present' || r.status === 'first_half' || r.status === 'second_half') &&
+    r.shift
+  );
 
   const shiftData = SHIFTS.map(sh => {
     const recs = todayR.filter(r => r.shift === sh.id);
-    const names = recs.map(r => r.userName || r.userEmail || '?');
-    return { ...sh, count: recs.length, names };
+    const people = recs.map(r => ({
+      name: r.userName || r.userEmail || '?',
+      status: r.status,
+    }));
+    return { ...sh, count: recs.length, people };
   });
   const totalOnShift = shiftData.reduce((a, s) => a + s.count, 0);
+
+  // Also count people with no shift marked yet today (not absent, not marked at all)
+  const markedIds   = todayR.map(r => r.userId);
+  const absentIds   = allRecords.filter(r => r.date === today && r.status === 'absent').map(r => r.userId);
+  const unmarkedCount = members.filter(m => !markedIds.includes(m.id) && !absentIds.includes(m.id)).length;
 
   return (
     <div className="shift-dist-card">
       <div className="shift-dist-header">
         🕐 Shift Coverage Today
-        <span style={{marginLeft:'auto',fontSize:12,color:'var(--text2)',fontWeight:600}}>
-          {totalOnShift} member{totalOnShift!==1?'s':''} on shift
+        <span style={{marginLeft:'auto',fontSize:12,color:'var(--text2)',fontWeight:600,display:'flex',alignItems:'center',gap:12}}>
+          <span>{totalOnShift} on shift</span>
+          {unmarkedCount > 0 && (
+            <span style={{color:'var(--yellow)',fontWeight:700}}>⏳ {unmarkedCount} not marked</span>
+          )}
         </span>
       </div>
       <div className="shift-summary-grid">
@@ -716,12 +732,14 @@ function ShiftDashPanel({ allRecords, members }) {
             <div className="shift-sum-count" style={{color:sh.count>0?sh.color:'var(--text3)'}}>
               {sh.count}
             </div>
-            {sh.names.length > 0 && (
+            {sh.people.length > 0 && (
               <div className="shift-sum-names">
-                {sh.names.map((nm,i) => (
+                {sh.people.map((p,i) => (
                   <span key={i} className="shift-name-chip">
                     <span className="chip-dot" style={{background:sh.color}}/>
-                    {nm.split(' ')[0]}
+                    {p.name.split(' ')[0]}
+                    {p.status === 'first_half'  && <span style={{fontSize:9,opacity:0.8,marginLeft:2}}>½↑</span>}
+                    {p.status === 'second_half' && <span style={{fontSize:9,opacity:0.8,marginLeft:2}}>½↓</span>}
                   </span>
                 ))}
               </div>
@@ -848,7 +866,7 @@ function DashboardPage({ allRecords, members }) {
       <div className="grid grid-4 section-gap">
         {[
           { cls:'blue',   icon:'👥', label:'Total Members', value:total,         sub:'Active team members' },
-          { cls:'green',  icon:'✅', label:'Present Today', value:present+half,  sub:`${half} on half day` },
+          { cls:'green',  icon:'✅', label:'Present Today', value:present+half,  sub:`${present} full · ${half} half-day` },
           { cls:'red',    icon:'🏖️', label:'On Leave',       value:absent,        sub:'Full absences' },
           { cls:'yellow', icon:'⏳', label:'Not Marked',     value:noMark,        sub:'Awaiting response' },
         ].map((s,i) => (
@@ -883,16 +901,25 @@ function DashboardPage({ allRecords, members }) {
                     <div style={{fontSize:11,color:'var(--text2)'}}>{m.email}</div>
                   </div>
                   {rec ? (
-                    <span className={`badge ${rec.status==='absent'?(rec.leaveType||'absent').toLowerCase().replace(' ',''):'present'}`}>
+                    <span className={`badge ${
+                      rec.status==='present' ? 'present' :
+                      rec.status==='first_half' || rec.status==='second_half' ? 'half' :
+                      (rec.leaveType||'absent').toLowerCase().replace(' ','')
+                    }`}>
                       {rec.status==='present'?'Present':rec.status==='first_half'?'1st Half':rec.status==='second_half'?'2nd Half':rec.leaveType||'Absent'}
                     </span>
                   ) : <span style={{fontSize:11,color:'var(--text3)'}}>—</span>}
                 </div>
                 {sh && (
-                  <div style={{marginLeft:44,marginTop:4}}>
+                  <div style={{marginLeft:44,marginTop:4,display:'flex',alignItems:'center',gap:6}}>
                     <span style={{fontSize:10,fontFamily:'var(--font-mono)',fontWeight:600,color:sh.color,padding:'1px 7px',background:`${sh.color}15`,borderRadius:99,border:`1px solid ${sh.color}30`}}>
                       {sh.icon} {sh.short}
                     </span>
+                    {(rec.status==='first_half'||rec.status==='second_half') && (
+                      <span style={{fontSize:10,fontWeight:700,padding:'1px 7px',borderRadius:99,background:'rgba(245,176,20,0.1)',color:'var(--yellow2)',border:'1px solid rgba(245,176,20,0.25)'}}>
+                        {rec.status==='first_half'?'½ AM':'½ PM'}
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
@@ -921,7 +948,12 @@ function DashboardPage({ allRecords, members }) {
                 <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',padding:'7px 0',borderBottom:'1px solid rgba(30,45,68,.4)',fontSize:12}}>
                   <div>
                     <span style={{fontWeight:700}}>{r.userName||'Unknown'}</span>
-                    <span style={{color:'var(--text2)',marginLeft:6}}>{r.status==='present'?'marked Present':r.status==='absent'?`on ${r.leaveType||'Leave'}`:r.status==='first_half'?'1st Half':'2nd Half'}</span>
+                    <span style={{color:'var(--text2)',marginLeft:6}}>
+                      {r.status==='present'?'marked Present':
+                       r.status==='absent'?`on Leave${r.leaveType?` (${r.leaveType})`:''}`:
+                       r.status==='first_half'?'marked First Half':
+                       'marked Second Half'}
+                    </span>
                     {sh && <span style={{marginLeft:6,fontSize:10,fontFamily:'var(--font-mono)',color:sh.color,fontWeight:600}}>{sh.icon}{sh.short}</span>}
                   </div>
                   <div style={{color:'var(--text3)',flexShrink:0}}>{r.updatedAt?fmtTime(r.updatedAt):fmtDate(r.date)}</div>
